@@ -2,20 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
   <meta name="theme-color" content="#1a1025" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="ExecYul" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/icon.svg" />
-  <title>ExecYul Â· Body Double</title>
-  <style>
+  <title>ExecYul · Body Double</title>
+  <style><style><style><style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #0f0f1f; font-family: system-ui, sans-serif; }
-    #root { width: 100%; height: 100%; display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; }
+    :root { --vh: 1vh; --accent: #4ade80; }
+    html { width: 100%; height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { width: 100%; height: 100%; height: calc(var(--vh, 1vh) * 100); overflow: hidden; background: #0f0f1f; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; overscroll-behavior: none; }
+    #root { width: 100%; height: 100%; display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: rgba(124,58,237,0.3) transparent; }
+    .scene-container { width: 100%; max-width: 100%; min-height: 100%; }
+    button { font-family: inherit; cursor: pointer; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
 
-    /* â”€â”€ GIRL â”€â”€ */
+    /* ── WATERMARK ── */
+    .watermark-layer { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; opacity: 0.035; }
+    .watermark-text { position: absolute; font-size: 13px; font-weight: 800; letter-spacing: 5px; color: rgba(255,255,255,0.5); text-transform: uppercase; transform: rotate(-30deg); white-space: nowrap; user-select: none; text-shadow: 0 1px 3px rgba(0,0,0,0.4); font-family: 'Courier New', monospace; }
+
+    /* ── CFS LOGO ── */
+    .cfs-logo { position: fixed; top: 12px; left: 12px; z-index: 100; display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); transition: opacity 0.3s; max-width: calc(100vw - 180px); }
+    .cfs-logo:hover { opacity: 0.9; }
+    .cfs-logo img { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; object-fit: cover; display: block; }
+    .cfs-logo-text { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cfs-logo-text span { display: block; font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
+
+    /* ── KO-FI BAR ── */
+    
+    
+    .kofi-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 94, 91, 0.45); }
+    
+
+    /* ── COPYRIGHT ── */
+    
+    .copyright-bar a { color: rgba(255,255,255,0.25); text-decoration: none; pointer-events: auto; transition: color 0.2s; }
+    .copyright-bar a:hover { color: rgba(255,255,255,0.45); }
+
+    /* ── MUSIC PLAYER ── */
+    .music-player { position: fixed; top: 12px; right: 12px; z-index: 100; display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s; max-width: 180px; }
+    .music-player:hover { background: rgba(0,0,0,0.55); }
+    .music-player button { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 16px; cursor: pointer; padding: 4px; border-radius: 6px; transition: color 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .music-player button:hover { color: #fff; }
+    .music-player button.active { color: var(--accent, #4ade80); }
+    .music-info { font-size: 10px; color: rgba(255,255,255,0.4); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1; }
+    .music-visualizer { display: flex; align-items: flex-end; gap: 2px; height: 14px; flex-shrink: 0; }
+    .music-visualizer span { width: 2px; background: var(--accent, #4ade80); border-radius: 1px; animation: musicBar 0.6s ease-in-out infinite alternate; }
+    .music-visualizer span:nth-child(2) { animation-delay: 0.1s; height: 60%; }
+    .music-visualizer span:nth-child(3) { animation-delay: 0.2s; height: 40%; }
+    .music-visualizer span:nth-child(4) { animation-delay: 0.3s; height: 80%; }
+    @keyframes musicBar { 0% { height: 20%; opacity: 0.5; } 100% { height: 100%; opacity: 1; } }
+    .music-player.paused .music-visualizer span { animation: none; height: 20%; opacity: 0.3; }
+
+/* ── GIRL ── */
     @keyframes breathe   { 0%,100%{transform:scaleY(1)}   50%{transform:scaleY(0.965)} }
     @keyframes headbob   { 0%,100%{transform:rotate(0)}    50%{transform:rotate(-3deg)} }
     @keyframes gblink    { 0%,88%,100%{transform:scaleY(1)} 94%{transform:scaleY(0.07)} }
@@ -88,7 +131,7 @@
     @keyframes meditate { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-3px)} }
     @keyframes auraPulse { 0%,100%{opacity:0.3;transform:scale(1)}  50%{opacity:0.6;transform:scale(1.1)} }
 
-    /* â”€â”€ CAT â”€â”€ */
+    /* ── CAT ── */
     @keyframes catwalk   { 0%{transform:translateX(0) scaleX(1)} 45%{transform:translateX(56px) scaleX(1)} 50%{transform:translateX(56px) scaleX(-1)} 95%{transform:translateX(0) scaleX(-1)} 100%{transform:translateX(0) scaleX(1)} }
     @keyframes catDance  { 0%,100%{transform:translateY(0) rotate(0) scaleX(1)} 20%{transform:translateY(-12px) rotate(-10deg) scaleX(1)} 50%{transform:translateY(0) rotate(0) scaleX(-1)} 70%{transform:translateY(-12px) rotate(10deg) scaleX(-1)} }
     @keyframes catEatBob { 0%,100%{transform:translateY(0)}  50%{transform:translateY(4px)} }
@@ -110,7 +153,7 @@
       75%{transform:rotate(10deg) translateY(-5px)}
     }
 
-    /* â”€â”€ FELIX CLOCK â”€â”€ */
+    /* ── FELIX CLOCK ── */
     @keyframes clockEyes { 
       0%,45%{transform:translateX(0)} 
       50%,95%{transform:translateX(4px)}
@@ -121,7 +164,7 @@
       100%{transform:rotate(360deg)}
     }
 
-    /* â”€â”€ SEASONAL â”€â”€ */
+    /* ── SEASONAL ── */
     @keyframes petalFall { 
       0%{transform:translateY(-10px) rotate(0);opacity:0} 
       10%{opacity:0.8}
@@ -141,7 +184,7 @@
       50%{transform:rotate(5deg)}
     }
 
-    /* â”€â”€ ROOM â”€â”€ */
+    /* ── ROOM ── */
     @keyframes flicker   { 0%,100%{opacity:1}  91%{opacity:0.7}  95%{opacity:1}  98%{opacity:0.8} }
     @keyframes startwink { 0%,100%{opacity:0.25;transform:scale(1)}  50%{opacity:1;transform:scale(1.5)} }
     @keyframes floatnote { 0%{opacity:0;transform:translateY(0) rotate(-6deg)} 15%{opacity:1} 100%{opacity:0;transform:translateY(-32px) rotate(8deg)} }
@@ -149,13 +192,13 @@
     @keyframes raindrop  { 0%{transform:translateY(-10px);opacity:0} 8%{opacity:0.55} 100%{transform:translateY(110vh);opacity:0} }
     @keyframes pulseglo  { 0%,100%{opacity:0.5}  50%{opacity:1} }
 
-    /* â”€â”€ GARDEN â”€â”€ */
+    /* ── GARDEN ── */
     @keyframes grow { 0%{transform:scale(0)}  100%{transform:scale(1)} }
     @keyframes swayPlant { 0%,100%{transform:rotate(-3deg)}  50%{transform:rotate(3deg)} }
     @keyframes bloom { 0%{transform:scale(0)}  80%{transform:scale(1.2)}  100%{transform:scale(1)} }
     @keyframes sparkle { 0%,100%{opacity:0;transform:scale(0)}  50%{opacity:1;transform:scale(1)} }
 
-    /* â”€â”€ UI â”€â”€ */
+    /* ── UI ── */
     @keyframes fadein    { from{opacity:0}  to{opacity:1} }
     @keyframes slideup   { from{opacity:0;transform:translateY(12px)}  to{opacity:1;transform:translateY(0)} }
     @keyframes notifPop  { 0%{opacity:0;transform:translateX(-50%) translateY(-16px)} 12%{opacity:1;transform:translateX(-50%) translateY(0)} 85%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(-12px)} }
@@ -170,10 +213,165 @@
     button { font-family: inherit; cursor: pointer; }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
-  </style>
+  
+    /* ── RESPONSIVE ROOT & SCENE ── */
+    :root { --vh: 1vh; --accent: #4ade80; }
+    html { width: 100%; height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { width: 100%; height: 100%; height: calc(var(--vh, 1vh) * 100); overflow: hidden; background: #0f0f1f; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; overscroll-behavior: none; }
+.scene-container { width: 100%; max-width: 100%; min-height: 100%; }
+    @media (max-width: 480px) and (orientation: portrait) {
+.scene-container { max-width: 100vw; } }
+    @media (max-height: 480px) and (orientation: landscape) {
+.scene-container { max-width: 100vw; } }
+    
+    @media (min-width: 361px) and (max-width: 480px) {
+.scene-container { max-width: 100vw; } }
+    @media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
+.scene-container { max-width: 480px; } }
+    @media (min-width: 481px) and (max-width: 1024px) and (orientation: landscape) {
+.scene-container { max-width: 600px; } }
+    @media (min-width: 769px) and (max-width: 1199px) {
+.scene-container { max-width: 600px; } }
+    @media (min-width: 1200px) and (max-width: 1599px) {
+.scene-container { max-width: 700px; } }
+    @media (min-width: 1600px) {
+.scene-container { max-width: 800px; } }
+    @media (min-width: 700px) and (max-width: 900px) and (min-height: 700px) {
+.scene-container { max-width: 550px; } }
+    @media (prefers-reduced-motion: reduce) {
+.music-visualizer span { animation: none !important; } }
+    @media (prefers-contrast: high) { .cfs-logo, .music-player,
+}
+    @media (prefers-color-scheme: dark) { body { background: #0f0f1f; } }
+    @media print { .cfs-logo, .music-player, .kofi-bar, .copyright-bar, 
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) and (orientation: portrait) { #root { padding: 0; } .scene-container { max-width: 100vw; } }
+    @media (max-height: 480px) and (orientation: landscape) { #root { padding: 4px; align-items: center; } .scene-container { max-width: 100vw; } }
+    @media (max-width: 360px) { #root { padding: 0; } .cfs-logo { padding: 5px 8px; gap: 6px; max-width: calc(100vw - 140px); } .cfs-logo img { width: 22px; height: 22px; } .cfs-logo-text { font-size: 9px; letter-spacing: 1px; } .cfs-logo-text span { font-size: 8px; } .kofi-btn { padding: 6px 12px; font-size: 10px; } .kofi-icon { font-size: 14px; } .music-player { gap: 4px; padding: 5px 8px; max-width: 60px; } .music-info { display: none; } .music-visualizer { height: 12px; }  .watermark-text { font-size: 10px; letter-spacing: 3px; } }
+    @media (min-width: 361px) and (max-width: 480px) { #root { padding: 0; } .scene-container { max-width: 100vw; } }
+    @media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) { #root { padding: 8px; } .scene-container { max-width: 480px; } }
+    @media (min-width: 481px) and (max-width: 1024px) and (orientation: landscape) { #root { padding: 8px 16px; } .scene-container { max-width: 600px; } }
+    @media (min-width: 769px) and (max-width: 1199px) { #root { padding: 16px; } .scene-container { max-width: 600px; } }
+    @media (min-width: 1200px) and (max-width: 1599px) { #root { padding: 24px; } .scene-container { max-width: 700px; } }
+    
+    @media (min-width: 700px) and (max-width: 900px) and (min-height: 700px) { #root { padding: 12px; } .scene-container { max-width: 550px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } .music-visualizer span { animation: none !important; } }
+    @media (prefers-contrast: high) { .cfs-logo, .music-player, .kofi-btn { border-width: 2px !important; } }
+    @media (prefers-color-scheme: dark) { body { background: #0f0f1f; } }
+    
+
+  
+    /* ── KO-FI TOP (small) ── */
+    .kofi-top {
+      position: fixed;
+      top: 48px;
+      left: 12px;
+      z-index: 100;
+      display: flex;
+      padding: 0;
+      background: transparent;
+      pointer-events: none;
+    }
+    .kofi-top .kofi-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #FF5E5B, #ff8c42);
+      color: white;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(255, 94, 91, 0.3);
+      pointer-events: auto;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .kofi-top .kofi-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 94, 91, 0.4);
+    }
+    .kofi-top .kofi-icon { font-size: 13px; }
+
+    /* ── COPYRIGHT BOTTOM ── */
+    .copyright-bottom {
+      position: fixed;
+      bottom: 8px;
+      left: 0;
+      right: 0;
+      z-index: 90;
+      text-align: center;
+      font-size: 9px;
+      color: rgba(255,255,255,0.15);
+      letter-spacing: 0.5px;
+      pointer-events: none;
+      padding: 0 16px;
+    }
+    .copyright-bottom a {
+      color: rgba(255,255,255,0.25);
+      text-decoration: none;
+      pointer-events: auto;
+      transition: color 0.2s;
+    }
+    .copyright-bottom a:hover { color: rgba(255,255,255,0.45); }
+    @media (max-width: 360px) {
+      .kofi-top { top: 42px; left: 8px; }
+      .kofi-top .kofi-btn { padding: 5px 10px; font-size: 10px; }
+      .kofi-top .kofi-icon { font-size: 12px; }
+      .copyright-bottom { font-size: 8px; bottom: 6px; }
+    }
+</style>ta name="description" content="Body Double - Mental health and productivity companion for ADHD and executive functioning. All rights reserved Creative Factory Studio." />
+  <meta name="copyright" content="2026 Creative Factory Studio. All rights reserved." />
+  <meta name="author" content="Creative Factory Studio" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="ExecYul Body Double" />
+  <meta property="og:description" content="ADHD-friendly body doubling companion with music, task breakdown, and virtual garden." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://creativefactory.studio" />
 </head>
 <body>
 <div id="root"></div>
+
+<!-- Watermark Layer -->
+<div class="watermark-layer" id="watermark"></div>
+
+<!-- CFS Logo -->
+<div class="cfs-logo" id="cfsLogo">
+  <div class="cfs-logo-text">
+    CREATIVE FACTORY
+    <span>Studio</span>
+  </div>
+</div>
+
+<!-- Music Player -->
+<div class="music-player paused" id="musicPlayer">
+  <button id="musicToggle" title="Toggle music">▶</button>
+  <div class="music-visualizer">
+    <span style="height:40%"></span>
+    <span style="height:60%"></span>
+    <span style="height:40%"></span>
+    <span style="height:80%"></span>
+  </div>
+  <div class="music-info" id="musicInfo">Focus · Lofi</div>
+</div>
+
+<!-- Ko-fi -->
+<div class="kofi-top">
+  <a class="kofi-btn" href="https://ko-fi.com/creativefactorystudio" target="_blank" rel="noopener noreferrer">
+    <span class="kofi-icon">☕</span>
+    <span>Support</span>
+  </a>
+</div>
+
+<!-- Copyright -->
+<div class="copyright-bottom">
+  © 2026 <a href="https://creativefactory.studio" target="_blank" rel="noopener noreferrer">Creative Factory Studio</a>. All rights reserved.
+</div>
+
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -186,57 +384,57 @@ const { useState, useEffect, useRef, useCallback } = React;
 // ==========================================
 
 const MOODS = [
-  { id:'focus', label:'Focus', bg:'#0c160c', sky:'#07100a', accent:'#4ade80', desc:'Deep work ðŸŒ¿', music:'lofi' },
-  { id:'chill', label:'Chill',  bg:'#0e0e1e', sky:'#080812', accent:'#818cf8', desc:'Easy flow ðŸŒ™', music:'ambient' },
-  { id:'storm', label:'Storm',  bg:'#0b1018', sky:'#070c10', accent:'#60a5fa', desc:'Power âš¡', music:'classical' },
-  { id:'cozy',  label:'Cozy',   bg:'#180f08', sky:'#100800', accent:'#fb923c', desc:'Warm ðŸ•¯ï¸', music:'jazz' },
+  { id:'focus', label:'Focus', bg:'#0c160c', sky:'#07100a', accent:'#4ade80', desc:'Deep work 🌿', music:'lofi' },
+  { id:'chill', label:'Chill',  bg:'#0e0e1e', sky:'#080812', accent:'#818cf8', desc:'Easy flow 🌙', music:'ambient' },
+  { id:'storm', label:'Storm',  bg:'#0b1018', sky:'#070c10', accent:'#60a5fa', desc:'Power ⚡', music:'classical' },
+  { id:'cozy',  label:'Cozy',   bg:'#180f08', sky:'#100800', accent:'#fb923c', desc:'Warm 🕯️', music:'jazz' },
 ];
 
 const SEASONS = {
-  spring: { name: 'Spring', bg: '#0d1f0d', window: '#87CEEB', particles: 'ðŸŒ¸', particleAnim: 'petalFall' },
-  summer: { name: 'Summer', bg: '#0f1a0f', window: '#FFD700', particles: 'â˜€ï¸', particleAnim: 'sunBeam' },
-  fall:   { name: 'Fall',   bg: '#1a1208', window: '#FF8C00', particles: 'ðŸ‚', particleAnim: 'leafSway' },
-  winter: { name: 'Winter', bg: '#080c12', window: '#B0E0E6', particles: 'â„ï¸', particleAnim: 'snowFall' },
+  spring: { name: 'Spring', bg: '#0d1f0d', window: '#87CEEB', particles: '🌸', particleAnim: 'petalFall' },
+  summer: { name: 'Summer', bg: '#0f1a0f', window: '#FFD700', particles: '☀️', particleAnim: 'sunBeam' },
+  fall:   { name: 'Fall',   bg: '#1a1208', window: '#FF8C00', particles: '🍂', particleAnim: 'leafSway' },
+  winter: { name: 'Winter', bg: '#080c12', window: '#B0E0E6', particles: '❄️', particleAnim: 'snowFall' },
 };
 
 const SCHEDULE_RULES = [
-  { id: 'break',     label: 'Fresh Air',  interval: 45*60,  duration: 5,  priority: 1,  icon: 'ðŸŒ¬ï¸' },
-  { id: 'eat',       label: 'Eat',        interval: 3*60*60, duration: 20, priority: 2,  icon: 'ðŸœ' },
-  { id: 'tidy',      label: 'Tidy Up',    interval: 2*60*60, duration: 10, priority: 1,  icon: 'ðŸ§¹' },
-  { id: 'meditate',  label: 'Breathe',    interval: 4*60*60, duration: 5,  priority: 1,  icon: 'ðŸ§˜' },
-  { id: 'sleep',     label: 'Wind Down',  time: '21:30',    duration: 30, priority: 3,  icon: 'ðŸŒ™' },
+  { id: 'break',     label: 'Fresh Air',  interval: 45*60,  duration: 5,  priority: 1,  icon: '🌬️' },
+  { id: 'eat',       label: 'Eat',        interval: 3*60*60, duration: 20, priority: 2,  icon: '🍜' },
+  { id: 'tidy',      label: 'Tidy Up',    interval: 2*60*60, duration: 10, priority: 1,  icon: '🧹' },
+  { id: 'meditate',  label: 'Breathe',    interval: 4*60*60, duration: 5,  priority: 1,  icon: '🧘' },
+  { id: 'sleep',     label: 'Wind Down',  time: '21:30',    duration: 30, priority: 3,  icon: '🌙' },
 ];
 
 const MSGS = {
-  idle:     ['Hey Yulia! Ready when you are âœ¨','I\'m right here with you ðŸ’œ','Take your time, I\'m not going anywhere ðŸŒ¸'],
-  work:     ['We\'re locked in together! ðŸ’ª','You\'re doing so well ðŸ§ ','Stay in flow, I\'ve got you âœ¨','One thing at a time ðŸŒŸ'],
-  dance:    ['BREAK TIME!! Shake it out!! ðŸŽ‰','You earned this, dance it out! ðŸ’ƒ','Mochi is vibing too ðŸ±ðŸŽµ'],
-  eat:      ['Fuel up! You need this ðŸœ','Don\'t skip it â€” we\'re eating together! ðŸ¥£','Nourish that ADHD brain ðŸŒ¸'],
-  feed:     ['Mochi is SO happy right now ðŸ±','Look at her go!! ðŸ¥°','She was waiting patiently ðŸ’œ'],
-  sleep:    ['Time to wind down... ðŸŒ™','Your brain needs rest ðŸ’œ','Let\'s prepare for sleep ðŸŒ¸'],
-  stretch:  ['Breathe in... breathe out ðŸŒ¬ï¸','Stretch it out, feel better âœ¨','Your body needs this ðŸ’œ'],
-  tidy:     ['Quick tidy, clear mind ðŸ§¹','We can do 10 minutes! ðŸ’ª','Clear space, clear head âœ¨'],
-  meditate: ['Breathe with me ðŸ§˜','Just 5 minutes of calm ðŸŒ¸','You deserve this pause ðŸ’œ'],
+  idle:     ['Hey Yulia! Ready when you are ✨','I\'m right here with you 💜','Take your time, I\'m not going anywhere 🌸'],
+  work:     ['We\'re locked in together! 💪','You\'re doing so well 🧠','Stay in flow, I\'ve got you ✨','One thing at a time 🌟'],
+  dance:    ['BREAK TIME!! Shake it out!! 🎉','You earned this, dance it out! 💃','Mochi is vibing too 🐱🎵'],
+  eat:      ['Fuel up! You need this 🍜','Don\'t skip it — we\'re eating together! 🥣','Nourish that ADHD brain 🌸'],
+  feed:     ['Mochi is SO happy right now 🐱','Look at her go!! 🥰','She was waiting patiently 💜'],
+  sleep:    ['Time to wind down... 🌙','Your brain needs rest 💜','Let\'s prepare for sleep 🌸'],
+  stretch:  ['Breathe in... breathe out 🌬️','Stretch it out, feel better ✨','Your body needs this 💜'],
+  tidy:     ['Quick tidy, clear mind 🧹','We can do 10 minutes! 💪','Clear space, clear head ✨'],
+  meditate: ['Breathe with me 🧘','Just 5 minutes of calm 🌸','You deserve this pause 💜'],
 };
 
 const FORTUNES = [
-  "ðŸ± Mochi says: Today will be purr-fect!",
-  "âœ¨ The stars align for deep focus!",
-  "ðŸŒ™ Trust your instincts, Yulia.",
-  "ðŸ’œ You've got this, no matter what.",
-  "ðŸŒ¸ Small steps lead to big blooms.",
-  "âš¡ Your energy is magnetic today!",
-  "ðŸœ Don't forget to fuel your brilliance.",
-  "ðŸ§¹ Clear space = clear mind incoming.",
+  "🐱 Mochi says: Today will be purr-fect!",
+  "✨ The stars align for deep focus!",
+  "🌙 Trust your instincts, Yulia.",
+  "💜 You've got this, no matter what.",
+  "🌸 Small steps lead to big blooms.",
+  "⚡ Your energy is magnetic today!",
+  "🍜 Don't forget to fuel your brilliance.",
+  "🧹 Clear space = clear mind incoming.",
 ];
 
 const BADGES = [
-  { id: 'first_focus', name: 'First Focus', icon: 'ðŸŽ¯', desc: 'Complete your first session' },
-  { id: 'streak_3', name: 'On Fire', icon: 'ðŸ”¥', desc: '3-day streak' },
-  { id: 'streak_7', name: 'Week Warrior', icon: 'âš¡', desc: '7-day streak' },
-  { id: 'tidy_titan', name: 'Tidy Titan', icon: 'ðŸ§¹', desc: 'Tidy 5 times' },
-  { id: 'mochi_friend', name: 'Mochi\'s Bestie', icon: 'ðŸ±', desc: 'Feed Mochi 10 times' },
-  { id: 'deep_work', name: 'Deep Diver', icon: 'ðŸ¤¿', desc: '60-min focus session' },
+  { id: 'first_focus', name: 'First Focus', icon: '🎯', desc: 'Complete your first session' },
+  { id: 'streak_3', name: 'On Fire', icon: '🔥', desc: '3-day streak' },
+  { id: 'streak_7', name: 'Week Warrior', icon: '⚡', desc: '7-day streak' },
+  { id: 'tidy_titan', name: 'Tidy Titan', icon: '🧹', desc: 'Tidy 5 times' },
+  { id: 'mochi_friend', name: 'Mochi\'s Bestie', icon: '🐱', desc: 'Feed Mochi 10 times' },
+  { id: 'deep_work', name: 'Deep Diver', icon: '🤿', desc: '60-min focus session' },
 ];
 
 const TASK_TEMPLATES = {
@@ -542,7 +740,7 @@ function Cat({ pose, accent, evolution }) {
     0: null, // Baby
     1: <div style={{position:'absolute',top:-2,left:'50%',transform:'translateX(-50%)',width:8,height:4,background:'#ff6b9d',borderRadius:'50% 50% 0 0',zIndex:10}} />, // Bow
     2: <div style={{position:'absolute',top:12,left:-2,width:6,height:6,border:'2px solid #ffd700',borderRadius:'50%',zIndex:10}} />, // Collar
-    3: <div style={{position:'absolute',top:-4,left:'50%',transform:'translateX(-50%)',fontSize:12,zIndex:10}}>ðŸ‘‘</div>, // Crown
+    3: <div style={{position:'absolute',top:-4,left:'50%',transform:'translateX(-50%)',fontSize:12,zIndex:10}}>👑</div>, // Crown
     4: <div style={{position:'absolute',top:-2,left:'50%',transform:'translateX(-50%)',width:10,height:5,background:'linear-gradient(45deg, #ff6b9d, #ffd700)',borderRadius:'50%',zIndex:10}} />, // Royal
   };
 
@@ -747,7 +945,7 @@ function Room({ mood, pose, accent, season }) {
         </div>
         {!isSleeping && (
           <>
-            <div style={{position:'absolute',top:-7,left:2,fontSize:7,color:'rgba(255,255,255,0.3)',animation:'floatnote 2.2s ease-out infinite'}}>{season==='winter'?'â„ï¸':'~'}</div>
+            <div style={{position:'absolute',top:-7,left:2,fontSize:7,color:'rgba(255,255,255,0.3)',animation:'floatnote 2.2s ease-out infinite'}}>{season==='winter'?'❄️':'~'}</div>
             <div style={{position:'absolute',top:-7,right:1,fontSize:7,color:'rgba(255,255,255,0.2)',animation:'floatnote 2.2s ease-out 0.9s infinite'}}>~</div>
           </>
         )}
@@ -767,7 +965,7 @@ function Room({ mood, pose, accent, season }) {
       <div style={{position:'absolute',bottom:'1%',left:'18%',right:'18%',height:7,background:accent+'15',borderRadius:4,border:'1px solid '+accent+'22',opacity:isSleeping?0.3:1}} />
 
       {/* Music notes */}
-      {isDancing && ['â™ª','â™«','â™©'].map((n,i) => (
+      {isDancing && ['♪','♫','♩'].map((n,i) => (
         <div key={i} style={{
           position:'absolute',top:'45%',left:(22+i*12)+'%',
           fontSize:13,color:accent,opacity:0,
@@ -874,7 +1072,7 @@ function TaskBreakdown({ onBreakdown, accent }) {
   return (
     <div style={{marginBottom:12,padding:12,background:'rgba(255,255,255,0.03)',borderRadius:12,border:'1px solid rgba(255,255,255,0.08)'}}>
       <div style={{fontSize:11,color:'rgba(255,255,255,0.5)',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
-        <span>âœ¨</span> Task Breakdown AI
+        <span>✨</span> Task Breakdown AI
       </div>
       
       <div style={{display:'flex',gap:8,marginBottom:steps.length?12:0}}>
@@ -922,7 +1120,7 @@ function TaskBreakdown({ onBreakdown, accent }) {
                 display:'flex',alignItems:'center',justifyContent:'center',
                 fontSize:10,color:'#000',
               }}>
-                {step.done && 'âœ“'}
+                {step.done && '✓'}
               </div>
               <span style={{
                 fontSize:12,
@@ -942,11 +1140,11 @@ function TaskBreakdown({ onBreakdown, accent }) {
 // --- VIRTUAL GARDEN ---
 function VirtualGarden({ streak, accent, onEvolution }) {
   const plants = [
-    { day: 1, emoji: 'ðŸŒ±', name: 'Sprout', size: 20 },
-    { day: 3, emoji: 'ðŸŒ¿', name: 'Seedling', size: 28 },
-    { day: 7, emoji: 'ðŸŒ·', name: 'Bloomer', size: 32 },
-    { day: 14, emoji: 'ðŸŒ»', name: 'Sunflower', size: 36 },
-    { day: 30, emoji: 'ðŸŒ³', name: 'Mighty Oak', size: 44 },
+    { day: 1, emoji: '🌱', name: 'Sprout', size: 20 },
+    { day: 3, emoji: '🌿', name: 'Seedling', size: 28 },
+    { day: 7, emoji: '🌷', name: 'Bloomer', size: 32 },
+    { day: 14, emoji: '🌻', name: 'Sunflower', size: 36 },
+    { day: 30, emoji: '🌳', name: 'Mighty Oak', size: 44 },
   ];
   
   const currentPlant = plants.slice().reverse().find(p => streak >= p.day) || plants[0];
@@ -966,7 +1164,7 @@ function VirtualGarden({ streak, accent, onEvolution }) {
     }}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
         <div style={{fontSize:10,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1}}>Your Garden</div>
-        <div style={{fontSize:11,color:accent}}>{streak} day{streak!==1?'s':''} ðŸŒ±</div>
+        <div style={{fontSize:11,color:accent}}>{streak} day{streak!==1?'s':''} 🌱</div>
       </div>
       
       <div style={{display:'flex',alignItems:'flex-end',justifyContent:'center',gap:8,height:50,marginBottom:8}}>
@@ -1006,7 +1204,7 @@ function VirtualGarden({ streak, accent, onEvolution }) {
       )}
       
       <div style={{textAlign:'center',fontSize:11,color:'rgba(255,255,255,0.5)',marginTop:6}}>
-        {currentPlant.name} {nextPlant && `â†’ ${nextPlant.name} in ${nextPlant.day - streak} days`}
+        {currentPlant.name} {nextPlant && `→ ${nextPlant.name} in ${nextPlant.day - streak} days`}
       </div>
     </div>
   );
@@ -1071,12 +1269,12 @@ function FortuneCookie({ onOpen, accent }) {
           background:'none',border:'none',fontSize:24,cursor:'pointer',
           animation:'bounce 2s ease-in-out infinite',
         }}>
-          ðŸ¥ 
+          🥠
         </button>
       ) : (
         <div style={{animation:'fadein 0.5s ease'}}>
           <div style={{fontSize:12,color:accent,marginBottom:4}}>{fortune}</div>
-          <div style={{fontSize:10,color:'rgba(255,255,255,0.4)'}}>â€” Mochi's Wisdom</div>
+          <div style={{fontSize:10,color:'rgba(255,255,255,0.4)'}}>— Mochi's Wisdom</div>
         </div>
       )}
     </div>
@@ -1103,7 +1301,7 @@ function ResetMode({ accent }) {
         display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
         animation:'fadein 0.5s ease',
       }}>
-        <div style={{fontSize:80,marginBottom:30,animation:'breathe 4s ease-in-out infinite'}}>ðŸŒ¸</div>
+        <div style={{fontSize:80,marginBottom:30,animation:'breathe 4s ease-in-out infinite'}}>🌸</div>
         <div style={{fontSize:24,color:accent,marginBottom:10,fontWeight:600}}>{breath}</div>
         <div style={{fontSize:14,color:'rgba(255,255,255,0.5)',marginBottom:30}}>You're safe. You're capable. Breathe.</div>
         <button onClick={() => setActive(false)} style={{
@@ -1119,7 +1317,7 @@ function ResetMode({ accent }) {
   return (
     <button onClick={() => setActive(true)}
       style={{width:'100%',padding:'10px 0',borderRadius:8,border:'1px solid rgba(220,38,38,0.3)',background:'rgba(220,38,38,0.1)',color:'#f87171',fontSize:11,fontWeight:600,marginBottom:10}}>
-      ðŸ†˜ Feeling overwhelmed? Take a breath
+      🆘 Feeling overwhelmed? Take a breath
     </button>
   );
 }
@@ -1150,7 +1348,7 @@ function FocusDashboard({ tasks, setTasks, timer, setTimer, isRunning, setIsRunn
         background:accent,border:'none',fontSize:20,zIndex:50,
         boxShadow:'0 4px 12px rgba(0,0,0,0.3)',cursor:'pointer',
       }}>
-        ðŸ“‹
+        📋
       </button>
     );
   }
@@ -1165,7 +1363,7 @@ function FocusDashboard({ tasks, setTasks, timer, setTimer, isRunning, setIsRunn
     }}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <div style={{fontSize:16,fontWeight:700,color:'#fff'}}>Focus Space</div>
-        <button onClick={() => setShowDashboard(false)} style={{background:'none',border:'none',fontSize:20,color:'rgba(255,255,255,0.5)'}}>âœ•</button>
+        <button onClick={() => setShowDashboard(false)} style={{background:'none',border:'none',fontSize:20,color:'rgba(255,255,255,0.5)'}}>✕</button>
       </div>
 
       {/* Quick Timer */}
@@ -1224,7 +1422,7 @@ function FocusDashboard({ tasks, setTasks, timer, setTimer, isRunning, setIsRunn
                 display:'flex',alignItems:'center',justifyContent:'center',
                 fontSize:12,color:'#000',border:'none',
               }}>
-                {task.done && 'âœ“'}
+                {task.done && '✓'}
               </button>
               <span style={{
                 flex:1,fontSize:13,
@@ -1233,7 +1431,7 @@ function FocusDashboard({ tasks, setTasks, timer, setTimer, isRunning, setIsRunn
               }}>{task.text}</span>
               <button onClick={() => deleteTask(task.id)} style={{
                 background:'none',border:'none',color:'rgba(255,255,255,0.3)',fontSize:16,
-              }}>Ã—</button>
+              }}>×</button>
             </div>
           ))}
         </div>
@@ -1280,7 +1478,7 @@ function App() {
   // Hello wave
   useEffect(() => {
     if (isFirstVisit && !hasWaved) {
-      console.log('ðŸ± Meow! Welcome back Yulia!');
+      console.log('🐱 Meow! Welcome back Yulia!');
       setPose('wave');
       setHasWaved(true);
       setTimeout(() => {
@@ -1300,7 +1498,7 @@ function App() {
             setRunning(false);
             setSessions(s => s+1);
             setStreak(s => s + 0.2);
-            triggerPose('dance', 28, 'ðŸŽ‰ Session done! You crushed it!');
+            triggerPose('dance', 28, '🎉 Session done! You crushed it!');
             
             // Unlock badges
             if (sessions === 0) unlockBadge('first_focus');
@@ -1350,7 +1548,7 @@ function App() {
   const unlockBadge = (id) => {
     if (!unlockedBadges.includes(id)) {
       setUnlockedBadges([...unlockedBadges, id]);
-      showNotif(`ðŸ† Badge unlocked: ${BADGES.find(b => b.id === id)?.name}!`, false);
+      showNotif(`🏆 Badge unlocked: ${BADGES.find(b => b.id === id)?.name}!`, false);
     }
   };
 
@@ -1365,27 +1563,35 @@ function App() {
     poseRef.current = setTimeout(() => {
       setPose(running ? 'work' : 'idle');
     }, sec * 1000);
+  
+  // Auto-change music based on pose
+  const trackMap = {
+    'work':'focus','idle':'focus','dance':'dance','eat':'chill',
+    'feed':'chill','sleep':'sleep','stretch':'meditate','tidy':'tidy',
+    'meditate':'meditate','wave':'focus','openwindow':'chill','trick':'dance'
   };
+  if (trackMap[p] && window.changeMusicTrack) window.changeMusicTrack(trackMap[p]);
+};
 
-  const startFocus = () => { setElapsed(0); setRunning(true); setPose('work'); showNotif('ðŸ§  Focus started!'); };
+  const startFocus = () => { setElapsed(0); setRunning(true); setPose('work'); showNotif('🧠 Focus started!'); };
   const pauseFocus = () => { setRunning(false); setPose('idle'); };
   const resumeFocus = () => { setRunning(true); setPose('work'); };
   const resetFocus = () => { setRunning(false); setElapsed(0); setPose('idle'); };
   
-  const doDance = () => triggerPose('dance', 15, 'ðŸ’ƒ Dance break!');
-  const doEat = () => { triggerPose('eat', 14, 'ðŸœ Eating time!'); unlockBadge('tidy_titan'); };
-  const doFeed = () => { triggerPose('feed', 12, 'ðŸ± Mochi is so happy!'); unlockBadge('mochi_friend'); };
-  const doTidy = () => triggerPose('tidy', 10, 'ðŸ§¹ Tidy time!');
-  const doMeditate = () => triggerPose('meditate', 5, 'ðŸ§˜ Breathe...');
-  const doSleep = () => triggerPose('sleep', 30, 'ðŸŒ™ Wind down...');
-  const doOpenWindow = () => triggerPose('openwindow', 8, 'ðŸªŸ Fresh air!');
-  const doTrick = () => triggerPose('trick', 5, 'ðŸ± Mochi does a flip!');
+  const doDance = () => triggerPose('dance', 15, '💃 Dance break!');
+  const doEat = () => { triggerPose('eat', 14, '🍜 Eating time!'); unlockBadge('tidy_titan'); };
+  const doFeed = () => { triggerPose('feed', 12, '🐱 Mochi is so happy!'); unlockBadge('mochi_friend'); };
+  const doTidy = () => triggerPose('tidy', 10, '🧹 Tidy time!');
+  const doMeditate = () => triggerPose('meditate', 5, '🧘 Breathe...');
+  const doSleep = () => triggerPose('sleep', 30, '🌙 Wind down...');
+  const doOpenWindow = () => triggerPose('openwindow', 8, '🪟 Fresh air!');
+  const doTrick = () => triggerPose('trick', 5, '🐱 Mochi does a flip!');
 
   const msgs = MSGS[pose] || MSGS.idle;
   const curMsg = msgs[msgIdx % msgs.length];
 
   return (
-    <div style={{width:'100%',minHeight:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start',padding:'12px 0 24px',background:md.bg,animation:'fadein 0.5s ease'}}>
+    <div className="scene-container"><div style={{width:'100%',minHeight:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start',padding:'12px 0 24px',background:md.bg,animation:'fadein 0.5s ease'}}>
       <div style={{width:'100%',maxWidth:390,padding:'0 14px',display:'flex',flexDirection:'column',gap:0}}>
 
         {/* Scene */}
@@ -1435,20 +1641,20 @@ function App() {
                 </div>
               )}
               <div style={{fontSize:11,color:'rgba(255,255,255,0.28)',textAlign:'center'}}>
-                {sessions>0 ? `ðŸŽ¯ ${sessions} session${sessions!==1?'s':''} done!` : 'Start your first session!'}
+                {sessions>0 ? `🎯 ${sessions} session${sessions!==1?'s':''} done!` : 'Start your first session!'}
               </div>
               {!isDone ? (
                 <button onClick={running?pauseFocus:elapsed>0?resumeFocus:startFocus}
                   style={{padding:'10px 0',borderRadius:12,border:'none',fontSize:13,fontWeight:700,background:'linear-gradient(135deg,'+accent+','+accent+'88)',color:'#fff',boxShadow:'0 4px 14px '+accent+'44'}}>
-                  {running?'â¸ Pause':elapsed>0?'â–¶ Resume':'â–¶ Start Focus'}
+                  {running?'⏸ Pause':elapsed>0?'▶ Resume':'▶ Start Focus'}
                 </button>
               ) : (
                 <button onClick={resetFocus} style={{padding:'10px 0',borderRadius:12,border:'none',fontSize:13,fontWeight:700,background:'linear-gradient(135deg,'+accent+','+accent+'88)',color:'#fff'}}>
-                  âœ¨ New Session
+                  ✨ New Session
                 </button>
               )}
               {elapsed>0 && !isDone && (
-                <button onClick={resetFocus} style={{padding:4,border:'none',background:'none',color:'rgba(255,255,255,0.22)',fontSize:11}}>â†º reset</button>
+                <button onClick={resetFocus} style={{padding:4,border:'none',background:'none',color:'rgba(255,255,255,0.22)',fontSize:11}}>↺ reset</button>
               )}
             </div>
           </div>
@@ -1459,12 +1665,12 @@ function App() {
           {/* Actions */}
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:13}}>
             {[
-              {label:'ðŸ’ƒ Dance', fn:doDance},
-              {label:'ðŸªŸ Window', fn:doOpenWindow},
-              {label:'ðŸœ Eat', fn:doEat},
-              {label:'ðŸ± Feed', fn:doFeed},
-              {label:mochiEvolution>=2?'ðŸŽª Trick':'ðŸ§¹ Tidy', fn:mochiEvolution>=2?doTrick:doTidy},
-              {label:'ðŸ§˜ Breathe', fn:doMeditate},
+              {label:'💃 Dance', fn:doDance},
+              {label:'🪟 Window', fn:doOpenWindow},
+              {label:'🍜 Eat', fn:doEat},
+              {label:'🐱 Feed', fn:doFeed},
+              {label:mochiEvolution>=2?'🎪 Trick':'🧹 Tidy', fn:mochiEvolution>=2?doTrick:doTidy},
+              {label:'🧘 Breathe', fn:doMeditate},
             ].map(btn => (
               <button key={btn.label} onClick={btn.fn}
                 style={{padding:'9px 4px',borderRadius:11,border:'1px solid rgba(255,255,255,0.09)',background:'rgba(255,255,255,0.04)',color:'rgba(255,255,255,0.6)',fontSize:11,fontWeight:600,lineHeight:1.3}}>
@@ -1475,7 +1681,7 @@ function App() {
 
           {/* Sleep */}
           <button onClick={doSleep} style={{width:'100%',padding:'12px 0',borderRadius:12,border:'1px solid rgba(99,102,241,0.3)',background:'rgba(99,102,241,0.1)',color:'#818cf8',fontSize:13,fontWeight:700,marginBottom:13}}>
-            ðŸŒ™ Wind Down for Sleep
+            🌙 Wind Down for Sleep
           </button>
 
           {/* Mood */}
@@ -1483,24 +1689,24 @@ function App() {
             <div style={{fontSize:9,color:'rgba(255,255,255,0.22)',textTransform:'uppercase',letterSpacing:2,marginBottom:7,textAlign:'center'}}>Vibe & Season</div>
             <div style={{display:'flex',gap:5,marginBottom:8}}>
               {MOODS.map(m => (
-                <button key={m.id} onClick={() => setMood(m.id)}
+                <button key={m.id} onClick={() => { setMood(m.id); if (window.changeMusicTrack) window.changeMusicTrack(m.id); }}
                   style={{flex:1,padding:'7px 3px',borderRadius:10,border:'1px solid',fontSize:10,fontWeight:600,borderColor:mood===m.id?m.accent:'rgba(255,255,255,0.07)',background:mood===m.id?m.accent+'18':'rgba(255,255,255,0.02)',color:mood===m.id?m.accent:'rgba(255,255,255,0.28)'}}>
                   {m.label}
                 </button>
               ))}
             </div>
             <div style={{textAlign:'center',fontSize:11,color:'rgba(255,255,255,0.25)'}}>
-              {md.desc} â€¢ {SEASONS[season].name} {SEASONS[season].particles}
+              {md.desc} • {SEASONS[season].name} {SEASONS[season].particles}
             </div>
           </div>
 
           {/* Music */}
           <div style={{marginTop:12,padding:'10px',background:'rgba(0,0,0,0.2)',borderRadius:10,textAlign:'center'}}>
-            <div style={{fontSize:10,color:'rgba(255,255,255,0.3)',marginBottom:4}}>ðŸŽµ Music</div>
+            <div style={{fontSize:10,color:'rgba(255,255,255,0.3)',marginBottom:4}}>🎵 Music</div>
             <div style={{fontSize:11,color:'rgba(255,255,255,0.5)'}}>{md.music} playlist ready</div>
           </div>
         </div>
-      </div>
+      </div></div>
 
       {/* Focus Dashboard */}
       <FocusDashboard 
@@ -1517,33 +1723,194 @@ function App() {
 }
 
 // Service worker
+
+
+// ==========================================
+// ENHANCED FEATURES - Creative Factory Studio
+// ==========================================
+
+// --- WATERMARK GENERATOR ---
+function generateWatermark() {
+  const container = document.getElementById('watermark');
+  if (!container) return;
+  container.innerHTML = '';
+  const text = 'CFSmochi';
+  const spacingX = 200;
+  const spacingY = 140;
+  const cols = Math.ceil(window.innerWidth / spacingX) + 2;
+  const rows = Math.ceil(window.innerHeight / spacingY) + 2;
+  for (let r = -1; r < rows; r++) {
+    for (let c = -1; c < cols; c++) {
+      const el = document.createElement('div');
+      el.className = 'watermark-text';
+      el.textContent = text;
+      el.style.left = (c * spacingX + (r % 2) * (spacingX / 2)) + 'px';
+      el.style.top = (r * spacingY) + 'px';
+      container.appendChild(el);
+    }
+  }
+}
+window.addEventListener('load', generateWatermark);
+window.addEventListener('resize', generateWatermark);
+
+// --- MUSIC SYSTEM (ADHD-Optimized) ---
+const MUSIC_TRACKS = {
+  focus:    { name: 'Deep Focus',      artist: 'Lofi Girl',        embedId: 'jfKfPfyJRdk', desc: 'Binaural beats + lofi for sustained attention' },
+  chill:    { name: 'Ambient Flow',    artist: 'Nature Sounds',    embedId: 's49CT4DTAkw', desc: 'Soft ambient pads for relaxed productivity' },
+  storm:    { name: 'Power Classical', artist: 'Orchestral Focus', embedId: '5qap5aO4i9A', desc: 'Orchestral energy for high-intensity tasks' },
+  cozy:     { name: 'Warm Jazz',       artist: 'Cozy Vibes',       embedId: 'Dx5qFachd3A', desc: 'Warm jazz for evening wind-down' },
+  dance:    { name: 'Movement Break',  artist: 'Upbeat Energy',    embedId: 'MYPVQccHh0g', desc: 'Energetic but structured for dance breaks' },
+  meditate: { name: 'Mindful Breath',  artist: 'Meditation',       embedId: 'pWjmpSDPhkQ', desc: '40Hz binaural beats for mindfulness' },
+  sleep:    { name: 'Deep Sleep',      artist: 'Delta Waves',      embedId: 'rEgBCZi9E9Y', desc: 'Delta wave entrainment for restful sleep' },
+  tidy:     { name: 'Cleaning Motivation', artist: 'Upbeat Lofi',  embedId: 'lTRiuFIWV54', desc: 'Rhythmic beats to make tidying flow' },
+};
+
+let ytPlayer = null;
+let ytReady = false;
+let musicPlaying = false;
+let currentTrackId = 'focus';
+
+function initYouTubeAPI() {
+  if (window.YT && window.YT.Player) {
+    ytReady = true;
+    createMusicPlayer();
+    return;
+  }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+
+window.onYouTubeIframeAPIReady = function() {
+  ytReady = true;
+  createMusicPlayer();
+};
+
+function createMusicPlayer() {
+  if (!ytReady || ytPlayer) return;
+  let playerDiv = document.getElementById('yt-music-player');
+  if (!playerDiv) {
+    playerDiv = document.createElement('div');
+    playerDiv.id = 'yt-music-player';
+    playerDiv.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;';
+    document.body.appendChild(playerDiv);
+  }
+  const track = MUSIC_TRACKS[currentTrackId] || MUSIC_TRACKS.focus;
+  ytPlayer = new window.YT.Player('yt-music-player', {
+    height: '1', width: '1', videoId: track.embedId,
+    playerVars: { autoplay: 0, loop: 1, playlist: track.embedId, controls: 0, modestbranding: 1, rel: 0, fs: 0, iv_load_policy: 3 },
+    events: {
+      onReady: (e) => { e.target.setVolume(30); if (musicPlaying) e.target.playVideo(); },
+      onStateChange: (e) => {
+        if (e.data === window.YT.PlayerState.PLAYING) updateMusicUI(true);
+        else if (e.data === window.YT.PlayerState.PAUSED) updateMusicUI(false);
+      },
+    },
+  });
+}
+
+function updateMusicUI(playing) {
+  musicPlaying = playing;
+  const playerEl = document.getElementById('musicPlayer');
+  const toggleBtn = document.getElementById('musicToggle');
+  if (playerEl) playerEl.classList.toggle('paused', !playing);
+  if (toggleBtn) {
+    toggleBtn.textContent = playing ? '⏸' : '▶';
+    toggleBtn.title = playing ? 'Pause music' : 'Play music';
+    toggleBtn.classList.toggle('active', playing);
+  }
+}
+
+function toggleMusic() {
+  if (!ytPlayer || !ytReady) { initYouTubeAPI(); return; }
+  if (musicPlaying) ytPlayer.pauseVideo();
+  else ytPlayer.playVideo();
+}
+
+function changeMusicTrack(trackId) {
+  currentTrackId = trackId;
+  const track = MUSIC_TRACKS[trackId];
+  if (!track) return;
+  const infoEl = document.getElementById('musicInfo');
+  if (infoEl) { infoEl.textContent = track.name + ' · ' + track.artist; infoEl.title = track.desc; }
+  if (ytPlayer && ytReady) {
+    ytPlayer.loadVideoById({ videoId: track.embedId, startSeconds: 0 });
+    if (!musicPlaying) ytPlayer.pauseVideo();
+  }
+}
+
+// Music toggle button handler
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'musicToggle' || e.target.closest('#musicToggle')) toggleMusic();
+});
+
+initYouTubeAPI();
+
+// --- RESPONSIVE HELPERS ---
+function setViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+window.addEventListener('resize', setViewportHeight);
+window.addEventListener('orientationchange', () => setTimeout(setViewportHeight, 300));
+setViewportHeight();
+
+function setSafeAreas() {
+  const safeTop = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-top)');
+  const safeBottom = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)');
+  if (safeTop && safeTop !== '0px') document.documentElement.style.setProperty('--safe-top', safeTop);
+  if (safeBottom && safeBottom !== '0px') document.documentElement.style.setProperty('--safe-bottom', safeBottom);
+}
+setSafeAreas();
+
+// Touch feedback
+document.addEventListener('touchstart', (e) => {
+  if (e.target.tagName === 'BUTTON' || e.target.closest('button')) e.target.style.transform = 'scale(0.96)';
+}, {passive: true});
+document.addEventListener('touchend', (e) => {
+  if (e.target.tagName === 'BUTTON' || e.target.closest('button')) setTimeout(() => e.target.style.transform = '', 100);
+});
+
+// Prevent zoom on double-tap
+document.addEventListener('touchend', (e) => {
+  if (e.target.tagName === 'BUTTON') { e.preventDefault(); e.target.click(); }
+}, {passive: false});
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ' && e.target.tagName === 'BUTTON') { e.preventDefault(); e.target.click(); }
+});
+
+// Detect touch device
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) document.documentElement.classList.add('touch-device');
+
+// Pointer type detection
+window.addEventListener('pointerdown', (e) => {
+  document.documentElement.classList.toggle('pointer-mouse', e.pointerType === 'mouse');
+  document.documentElement.classList.toggle('pointer-touch', e.pointerType === 'touch');
+});
+
+// PWA Install prompt
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+
+// Online/offline
+window.addEventListener('online', () => console.log('Back online'));
+window.addEventListener('offline', () => console.log('Offline mode'));
+
+// Verify logo loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const logoImg = document.querySelector('.cfs-logo img');
+  if (logoImg) {
+    logoImg.addEventListener('load', () => console.log('CFS Logo loaded'));
+    logoImg.addEventListener('error', () => console.error('CFS Logo failed - check logo.png'));
+  }
+});
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW:', err));
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-</script>
-        }
-        .kofi-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #FF5E5B, #ff8c42);
-            color: white;
-            text-decoration: none;
-            padding: 10px 22px;
-            border-radius: 24px;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            box-shadow: 0 4px 15px rgba(255, 94, 91, 0.35);
-        }
-        .kofi-icon { font-size: 18px; }
-    </style>
-    <div class="kofi-bar">
-        <a class="kofi-btn" href="https://ko-fi.com/creativefactorystudio" target="_blank">
-            <span class="kofi-icon">☕</span>
-            <span>Support this app — Buy me a coffee</span>
-        </a>
-    </div></body></body>
+</script></body>
 </html>
