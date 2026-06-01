@@ -340,25 +340,16 @@
 <!-- Watermark Layer -->
 <div class="watermark-layer" id="watermark"></div>
 
-<!-- CFS Logo -->
-<div class="cfs-logo" id="cfsLogo">
+<!-- CFS Logo (hidden - was blocking speech bubbles) -->
+<div class="cfs-logo" id="cfsLogo" style="display:none !important;">
   <div class="cfs-logo-text">
     CREATIVE FACTORY
     <span>Studio</span>
   </div>
 </div>
 
-<!-- Music Player -->
-<div class="music-player paused" id="musicPlayer">
-  <button id="musicToggle" title="Toggle music">▶</button>
-  <div class="music-visualizer">
-    <span style="height:40%"></span>
-    <span style="height:60%"></span>
-    <span style="height:40%"></span>
-    <span style="height:80%"></span>
-  </div>
-  <div class="music-info" id="musicInfo">Focus · Lofi</div>
-</div>
+<!-- Music Player (hidden - replaced by functional player in React) -->
+<div style="display:none !important;"></div>
 
 <!-- Ko-fi -->
 <div class="kofi-top">
@@ -396,6 +387,17 @@ const SEASONS = {
   summer: { name: 'Summer', bg: '#0f1a0f', window: '#FFD700', particles: '☀️', particleAnim: 'sunBeam' },
   fall:   { name: 'Fall',   bg: '#1a1208', window: '#FF8C00', particles: '🍂', particleAnim: 'leafSway' },
   winter: { name: 'Winter', bg: '#080c12', window: '#B0E0E6', particles: '❄️', particleAnim: 'snowFall' },
+};
+
+// ── FOCUS FAIRY THEMES ──
+const FAIRY_THEMES = {
+  dark:    { name: 'Dark Mode',  bg:'#0a0a0a', sky:'#111111', accent:'#ff66ff', particles:'✨' },
+  neon:    { name: 'Neon',       bg:'#1a001a', sky:'#6600ff', accent:'#ff00ff', particles:'🔮' },
+  pastel:  { name: 'Pastel',     bg:'#2a1f3a', sky:'#3a2a5a', accent:'#c48aff', particles:'🌸' },
+  vintage: { name: 'Vintage',    bg:'#2b1b0c', sky:'#3c2a1f', accent:'#ffb84d', particles:'☕' },
+  forest:  { name: 'Forest',     bg:'#0d1f0d', sky:'#0a1a0a', accent:'#6ee7b7', particles:'🌿' },
+  ocean:   { name: 'Ocean',      bg:'#0a1628', sky:'#0d1f3c', accent:'#60a5fa', particles:'🌊' },
+  sunset:  { name: 'Sunset',     bg:'#1f0a14', sky:'#2a0a1a', accent:'#fb923c', particles:'🌅' },
 };
 
 const SCHEDULE_RULES = [
@@ -1463,6 +1465,8 @@ function App() {
     try { return JSON.parse(localStorage.getItem('bd-todos') || '[]'); } catch { return []; }
   });
   const [charEditorOpen, setCharEditorOpen] = useState(false);
+  const [fairyTheme, setFairyTheme] = useState(null);
+  const [musicPlaying, setMusicPlaying] = useState(false);
   const [charColors, setCharColors] = useState(function(){
     try { return JSON.parse(localStorage.getItem('bd-char') || 'null'); } catch { return null; }
   });
@@ -1734,6 +1738,22 @@ function App() {
               style={{flex:1,padding:'6px 0',borderRadius:10,border:'1px solid '+md.accent+'44',background:md.accent+'15',color:md.accent,fontSize:10,fontWeight:700,cursor:'pointer',textAlign:'center'}}>📝 To-dos</button>
             <button onClick={function(){ setCharEditorOpen(true); }}
               style={{flex:1,padding:'6px 0',borderRadius:10,border:'1px solid '+md.accent+'44',background:md.accent+'15',color:md.accent,fontSize:10,fontWeight:700,cursor:'pointer',textAlign:'center'}}>🎨 Customize</button>
+            <button onClick={function(){ 
+              var keys = Object.keys(FAIRY_THEMES);
+              var idx = fairyTheme ? keys.indexOf(fairyTheme) : -1;
+              var next = keys[(idx + 1) % keys.length];
+              setFairyTheme(fairyTheme === next ? null : next);
+            }}
+              style={{padding:'6px 10px',borderRadius:10,border:'1px solid '+md.accent+'44',background:md.accent+'15',color:md.accent,fontSize:10,fontWeight:700,cursor:'pointer',textAlign:'center',flexShrink:0}}>
+              {FAIRY_THEMES[fairyTheme] ? FAIRY_THEMES[fairyTheme].name + ' ✨' : '✨ Theme'}
+            </button>
+            <button onClick={function(){ 
+                var p = window.__mochiMusic && window.__mochiMusic.toggle();
+                if (p) { setMusicPlaying(true); } else { setMusicPlaying(false); }
+              }}
+              style={{padding:'6px 10px',borderRadius:10,border:'1px solid '+md.accent+'44',background:md.accent+'15',color:md.accent,fontSize:10,fontWeight:700,cursor:'pointer',textAlign:'center',flexShrink:0}}>
+              {musicPlaying ? '⏸ Music' : '🎵 Music'}
+            </button>
             <a href="https://ko-fi.com/creativefactorystudio" target="_blank" rel="noopener noreferrer"
               style={{flex:1,padding:'6px 0',borderRadius:10,border:'1px solid #13C3FF44',background:'#13C3FF15',color:'#13C3FF',fontSize:10,fontWeight:700,cursor:'pointer',textAlign:'center',textDecoration:'none'}}>☕ Ko-fi</a>
           </div>
