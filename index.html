@@ -539,8 +539,10 @@ function SeasonalEffects({ season }) {
 
 // --- GIRL CHARACTER ---
 function Girl({ pose, accent, season }) {
-  const skin  = (charColors && charColors.skin) ? charColors.skin : '#f5c5a3';
-  const hair  = (charColors && charColors.hair) ? charColors.hair : '#2d1b69';
+  var savedChar = null;
+  try { savedChar = JSON.parse(localStorage.getItem('bd-char')); } catch(e) {}
+  const skin  = (savedChar && savedChar.skin) ? savedChar.skin : '#f5c5a3';
+  const hair  = (savedChar && savedChar.hair) ? savedChar.hair : '#2d1b69';
   const shirt = accent;
   const pants = '#374151';
   const isDancing   = pose === 'dance';
