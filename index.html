@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
   <meta name="theme-color" content="#1a1025" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -10,18 +10,72 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/icon.svg" />
   <title>ExecYul · Body Double</title>
-  <style>
+  <style><style><style><style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #0f0f1f; font-family: system-ui, sans-serif; }
-    #root { width: 100%; height: 100%; display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; }
+    :root { --vh: 1vh; --accent: #4ade80; }
+    html { width: 100%; height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { width: 100%; height: 100%; height: calc(var(--vh, 1vh) * 100); overflow: hidden; background: #0f0f1f; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; overscroll-behavior: none; }
+    #root { width: 100%; height: 100%; display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: rgba(124,58,237,0.3) transparent; }
+    .scene-container { width: 100%; max-width: 100%; min-height: 100%; }
+    button { font-family: inherit; cursor: pointer; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
 
-    /* ── GIRL ── */
+    /* ── WATERMARK ── */
+    .watermark-layer { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; opacity: 0.035; }
+    .watermark-text { position: absolute; font-size: 13px; font-weight: 800; letter-spacing: 5px; color: rgba(255,255,255,0.5); text-transform: uppercase; transform: rotate(-30deg); white-space: nowrap; user-select: none; text-shadow: 0 1px 3px rgba(0,0,0,0.4); font-family: 'Courier New', monospace; }
+
+    /* ── CFS LOGO ── */
+    .cfs-logo { position: fixed; top: 12px; left: 12px; z-index: 100; display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); transition: opacity 0.3s; max-width: calc(100vw - 180px); }
+    .cfs-logo:hover { opacity: 0.9; }
+    .cfs-logo img { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; object-fit: cover; display: block; }
+    .cfs-logo-text { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cfs-logo-text span { display: block; font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
+
+    /* ── KO-FI BAR ── */
+    
+    
+    .kofi-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 94, 91, 0.45); }
+    
+
+    /* ── COPYRIGHT ── */
+    
+    .copyright-bar a { color: rgba(255,255,255,0.25); text-decoration: none; pointer-events: auto; transition: color 0.2s; }
+    .copyright-bar a:hover { color: rgba(255,255,255,0.45); }
+
+    /* ── MUSIC PLAYER ── */
+    .music-player { position: fixed; top: 12px; right: 12px; z-index: 100; display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s; max-width: 180px; }
+    .music-player:hover { background: rgba(0,0,0,0.55); }
+    .music-player button { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 16px; cursor: pointer; padding: 4px; border-radius: 6px; transition: color 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .music-player button:hover { color: #fff; }
+    .music-player button.active { color: var(--accent, #4ade80); }
+    .music-info { font-size: 10px; color: rgba(255,255,255,0.4); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1; }
+    .music-visualizer { display: flex; align-items: flex-end; gap: 2px; height: 14px; flex-shrink: 0; }
+    .music-visualizer span { width: 2px; background: var(--accent, #4ade80); border-radius: 1px; animation: musicBar 0.6s ease-in-out infinite alternate; }
+    .music-visualizer span:nth-child(2) { animation-delay: 0.1s; height: 60%; }
+    .music-visualizer span:nth-child(3) { animation-delay: 0.2s; height: 40%; }
+    .music-visualizer span:nth-child(4) { animation-delay: 0.3s; height: 80%; }
+    @keyframes musicBar { 0% { height: 20%; opacity: 0.5; } 100% { height: 100%; opacity: 1; } }
+    .music-player.paused .music-visualizer span { animation: none; height: 20%; opacity: 0.3; }
+
+/* ── GIRL ── */
     @keyframes breathe   { 0%,100%{transform:scaleY(1)}   50%{transform:scaleY(0.965)} }
     @keyframes headbob   { 0%,100%{transform:rotate(0)}    50%{transform:rotate(-3deg)} }
     @keyframes gblink    { 0%,88%,100%{transform:scaleY(1)} 94%{transform:scaleY(0.07)} }
     @keyframes typeL     { 0%,100%{transform:rotate(0) translateY(0)}    50%{transform:rotate(-14deg) translateY(-2px)} }
     @keyframes typeR     { 0%,100%{transform:rotate(0) translateY(0)}    50%{transform:rotate(14deg)  translateY(-2px)} }
     @keyframes ponyIdle  { 0%,100%{transform:rotate(10deg)}  50%{transform:rotate(5deg)} }
+
+    /* WAVE HELLO */
+    @keyframes waveHello { 
+      0%,100%{transform:rotate(0)} 
+      10%{transform:rotate(-20deg)}
+      20%{transform:rotate(10deg)}
+      30%{transform:rotate(-20deg)}
+      40%{transform:rotate(10deg)}
+      50%{transform:rotate(-20deg)}
+      60%{transform:rotate(0)}
+    }
 
     /* DANCE */
     @keyframes girlSway  { 0%,100%{transform:translateX(0) rotate(0)}  25%{transform:translateX(-6px) rotate(-6deg)}  75%{transform:translateX(6px)  rotate(6deg)} }
@@ -44,14 +98,34 @@
     @keyframes sleepZ { 0%{opacity:0;transform:translateY(0) scale(0.8)}  20%{opacity:1;transform:translateY(-10px) scale(1)}  100%{opacity:0;transform:translateY(-30px) scale(1.2)} }
     @keyframes sway { 0%,100%{transform:rotate(-2deg)}  50%{transform:rotate(2deg)} }
 
-    /* STRETCH/FRESH AIR */
+    /* STRETCH/FRESH AIR - OPEN WINDOW */
     @keyframes stretchArmL { 0%,100%{transform:rotate(0)}  50%{transform:rotate(-160deg)} }
     @keyframes stretchArmR { 0%,100%{transform:rotate(0)}  50%{transform:rotate(160deg)} }
     @keyframes headBack { 0%,100%{transform:rotate(0)}  50%{transform:rotate(-15deg)} }
+    @keyframes walkToWindow { 
+      0%{transform:translateX(0)} 
+      30%{transform:translateX(40px) scaleX(1)}
+      50%{transform:translateX(40px) scaleX(1)}
+      80%{transform:translateX(0) scaleX(1)}
+      100%{transform:translateX(0)}
+    }
+    @keyframes openWindow { 
+      0%,100%{transform:rotateY(0)} 
+      40%,60%{transform:rotateY(-45deg)}
+    }
 
-    /* TIDY */
-    @keyframes tidyReach { 0%,100%{transform:rotate(0) translateY(0)}  50%{transform:rotate(-45deg) translateY(-5px)} }
+    /* TIDY - SWEEPING */
+    @keyframes tidySweep { 
+      0%,100%{transform:rotate(-20deg) translateX(0)} 
+      25%{transform:rotate(-40deg) translateX(5px)} 
+      75%{transform:rotate(0deg) translateX(-5px)}
+    }
     @keyframes tidyBend { 0%,100%{transform:translateY(0)}  50%{transform:translateY(3px)} }
+    @keyframes dust { 
+      0%{opacity:0;transform:translateY(0)} 
+      50%{opacity:0.6;transform:translateY(-10px)} 
+      100%{opacity:0;transform:translateY(-20px)}
+    }
 
     /* MEDITATE */
     @keyframes meditate { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-3px)} }
@@ -66,6 +140,49 @@
     @keyframes catblink  { 0%,86%,100%{transform:scaleY(1)}   93%{transform:scaleY(0.05)} }
     @keyframes catSleep  { 0%,100%{transform:scaleY(1)}  50%{transform:scaleY(0.3)} }
     @keyframes catPurr   { 0%,100%{transform:translateY(0)}  50%{transform:translateY(1px)} }
+    @keyframes catHello  { 
+      0%,100%{transform:translateY(0) rotate(0)} 
+      25%{transform:translateY(-8px) rotate(-5deg)}
+      50%{transform:translateY(0) rotate(0)}
+      75%{transform:translateY(-5px) rotate(5deg)}
+    }
+    @keyframes catTrick  {
+      0%,100%{transform:rotate(0)}
+      25%{transform:rotate(-10deg) translateY(-5px)}
+      50%{transform:rotate(0) translateY(-10px)}
+      75%{transform:rotate(10deg) translateY(-5px)}
+    }
+
+    /* ── FELIX CLOCK ── */
+    @keyframes clockEyes { 
+      0%,45%{transform:translateX(0)} 
+      50%,95%{transform:translateX(4px)}
+      100%{transform:translateX(0)}
+    }
+    @keyframes tailTick { 
+      0%{transform:rotate(0)} 
+      100%{transform:rotate(360deg)}
+    }
+
+    /* ── SEASONAL ── */
+    @keyframes petalFall { 
+      0%{transform:translateY(-10px) rotate(0);opacity:0} 
+      10%{opacity:0.8}
+      100%{transform:translateY(100px) rotate(360deg);opacity:0}
+    }
+    @keyframes snowFall { 
+      0%{transform:translateY(-10px);opacity:0} 
+      10%{opacity:0.9}
+      100%{transform:translateY(100px);opacity:0}
+    }
+    @keyframes sunBeam { 
+      0%,100%{opacity:0.3;transform:rotate(0deg)} 
+      50%{opacity:0.6;transform:rotate(5deg)}
+    }
+    @keyframes leafSway { 
+      0%,100%{transform:rotate(-5deg)} 
+      50%{transform:rotate(5deg)}
+    }
 
     /* ── ROOM ── */
     @keyframes flicker   { 0%,100%{opacity:1}  91%{opacity:0.7}  95%{opacity:1}  98%{opacity:0.8} }
@@ -75,6 +192,12 @@
     @keyframes raindrop  { 0%{transform:translateY(-10px);opacity:0} 8%{opacity:0.55} 100%{transform:translateY(110vh);opacity:0} }
     @keyframes pulseglo  { 0%,100%{opacity:0.5}  50%{opacity:1} }
 
+    /* ── GARDEN ── */
+    @keyframes grow { 0%{transform:scale(0)}  100%{transform:scale(1)} }
+    @keyframes swayPlant { 0%,100%{transform:rotate(-3deg)}  50%{transform:rotate(3deg)} }
+    @keyframes bloom { 0%{transform:scale(0)}  80%{transform:scale(1.2)}  100%{transform:scale(1)} }
+    @keyframes sparkle { 0%,100%{opacity:0;transform:scale(0)}  50%{opacity:1;transform:scale(1)} }
+
     /* ── UI ── */
     @keyframes fadein    { from{opacity:0}  to{opacity:1} }
     @keyframes slideup   { from{opacity:0;transform:translateY(12px)}  to{opacity:1;transform:translateY(0)} }
@@ -82,20 +205,183 @@
     @keyframes confettiFall { 0%{transform:translateY(-8px) rotate(0);opacity:1} 100%{transform:translateY(90px) rotate(400deg);opacity:0} }
     @keyframes pulse     { 0%,100%{transform:scale(1)}  50%{transform:scale(1.05)} }
     @keyframes urgent    { 0%,100%{transform:translateX(0)}  25%{transform:translateX(-3px)}  75%{transform:translateX(3px)} }
+    @keyframes slideIn   { from{transform:translateX(100%)}  to{transform:translateX(0)} }
+    @keyframes slideOut  { from{transform:translateX(0)}  to{transform:translateX(100%)} }
+    @keyframes bounce    { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-10px)} }
+    @keyframes shake     { 0%,100%{transform:translateX(0)}  25%{transform:translateX(-5px)}  75%{transform:translateX(5px)} }
 
-    button { font-family: inherit; }
+    button { font-family: inherit; cursor: pointer; }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
-  </style>
+  
+    /* ── RESPONSIVE ROOT & SCENE ── */
+    :root { --vh: 1vh; --accent: #4ade80; }
+    html { width: 100%; height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { width: 100%; height: 100%; height: calc(var(--vh, 1vh) * 100); overflow: hidden; background: #0f0f1f; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; overscroll-behavior: none; }
+.scene-container { width: 100%; max-width: 100%; min-height: 100%; }
+    @media (max-width: 480px) and (orientation: portrait) {
+.scene-container { max-width: 100vw; } }
+    @media (max-height: 480px) and (orientation: landscape) {
+.scene-container { max-width: 100vw; } }
+    
+    @media (min-width: 361px) and (max-width: 480px) {
+.scene-container { max-width: 100vw; } }
+    @media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
+.scene-container { max-width: 480px; } }
+    @media (min-width: 481px) and (max-width: 1024px) and (orientation: landscape) {
+.scene-container { max-width: 600px; } }
+    @media (min-width: 769px) and (max-width: 1199px) {
+.scene-container { max-width: 600px; } }
+    @media (min-width: 1200px) and (max-width: 1599px) {
+.scene-container { max-width: 700px; } }
+    @media (min-width: 1600px) {
+.scene-container { max-width: 800px; } }
+    @media (min-width: 700px) and (max-width: 900px) and (min-height: 700px) {
+.scene-container { max-width: 550px; } }
+    @media (prefers-reduced-motion: reduce) {
+.music-visualizer span { animation: none !important; } }
+    @media (prefers-contrast: high) { .cfs-logo, .music-player,
+}
+    @media (prefers-color-scheme: dark) { body { background: #0f0f1f; } }
+    @media print { .cfs-logo, .music-player, .kofi-bar, .copyright-bar, 
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) and (orientation: portrait) { #root { padding: 0; } .scene-container { max-width: 100vw; } }
+    @media (max-height: 480px) and (orientation: landscape) { #root { padding: 4px; align-items: center; } .scene-container { max-width: 100vw; } }
+    @media (max-width: 360px) { #root { padding: 0; } .cfs-logo { padding: 5px 8px; gap: 6px; max-width: calc(100vw - 140px); } .cfs-logo img { width: 22px; height: 22px; } .cfs-logo-text { font-size: 9px; letter-spacing: 1px; } .cfs-logo-text span { font-size: 8px; } .kofi-btn { padding: 6px 12px; font-size: 10px; } .kofi-icon { font-size: 14px; } .music-player { gap: 4px; padding: 5px 8px; max-width: 60px; } .music-info { display: none; } .music-visualizer { height: 12px; }  .watermark-text { font-size: 10px; letter-spacing: 3px; } }
+    @media (min-width: 361px) and (max-width: 480px) { #root { padding: 0; } .scene-container { max-width: 100vw; } }
+    @media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) { #root { padding: 8px; } .scene-container { max-width: 480px; } }
+    @media (min-width: 481px) and (max-width: 1024px) and (orientation: landscape) { #root { padding: 8px 16px; } .scene-container { max-width: 600px; } }
+    @media (min-width: 769px) and (max-width: 1199px) { #root { padding: 16px; } .scene-container { max-width: 600px; } }
+    @media (min-width: 1200px) and (max-width: 1599px) { #root { padding: 24px; } .scene-container { max-width: 700px; } }
+    
+    @media (min-width: 700px) and (max-width: 900px) and (min-height: 700px) { #root { padding: 12px; } .scene-container { max-width: 550px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } .music-visualizer span { animation: none !important; } }
+    @media (prefers-contrast: high) { .cfs-logo, .music-player, .kofi-btn { border-width: 2px !important; } }
+    @media (prefers-color-scheme: dark) { body { background: #0f0f1f; } }
+    
+
+  
+    /* ── KO-FI TOP (small) ── */
+    .kofi-top {
+      position: fixed;
+      top: 48px;
+      left: 12px;
+      z-index: 100;
+      display: flex;
+      padding: 0;
+      background: transparent;
+      pointer-events: none;
+    }
+    .kofi-top .kofi-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #FF5E5B, #ff8c42);
+      color: white;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(255, 94, 91, 0.3);
+      pointer-events: auto;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .kofi-top .kofi-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 94, 91, 0.4);
+    }
+    .kofi-top .kofi-icon { font-size: 13px; }
+
+    /* ── COPYRIGHT BOTTOM ── */
+    .copyright-bottom {
+      position: fixed;
+      bottom: 8px;
+      left: 0;
+      right: 0;
+      z-index: 90;
+      text-align: center;
+      font-size: 9px;
+      color: rgba(255,255,255,0.15);
+      letter-spacing: 0.5px;
+      pointer-events: none;
+      padding: 0 16px;
+    }
+    .copyright-bottom a {
+      color: rgba(255,255,255,0.25);
+      text-decoration: none;
+      pointer-events: auto;
+      transition: color 0.2s;
+    }
+    .copyright-bottom a:hover { color: rgba(255,255,255,0.45); }
+    @media (max-width: 360px) {
+      .kofi-top { top: 42px; left: 8px; }
+      .kofi-top .kofi-btn { padding: 5px 10px; font-size: 10px; }
+      .kofi-top .kofi-icon { font-size: 12px; }
+      .copyright-bottom { font-size: 8px; bottom: 6px; }
+    }
+</style>ta name="description" content="Body Double - Mental health and productivity companion for ADHD and executive functioning. All rights reserved Creative Factory Studio." />
+  <meta name="copyright" content="2026 Creative Factory Studio. All rights reserved." />
+  <meta name="author" content="Creative Factory Studio" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="ExecYul Body Double" />
+  <meta property="og:description" content="ADHD-friendly body doubling companion with music, task breakdown, and virtual garden." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://creativefactory.studio" />
 </head>
 <body>
 <div id="root"></div>
+
+<!-- Watermark Layer -->
+<div class="watermark-layer" id="watermark"></div>
+
+<!-- CFS Logo -->
+<div class="cfs-logo" id="cfsLogo">
+  <div class="cfs-logo-text">
+    CREATIVE FACTORY
+    <span>Studio</span>
+  </div>
+</div>
+
+<!-- Music Player -->
+<div class="music-player paused" id="musicPlayer">
+  <button id="musicToggle" title="Toggle music">▶</button>
+  <div class="music-visualizer">
+    <span style="height:40%"></span>
+    <span style="height:60%"></span>
+    <span style="height:40%"></span>
+    <span style="height:80%"></span>
+  </div>
+  <div class="music-info" id="musicInfo">Focus · Lofi</div>
+</div>
+
+<!-- Ko-fi -->
+<div class="kofi-top">
+  <a class="kofi-btn" href="https://ko-fi.com/creativefactorystudio" target="_blank" rel="noopener noreferrer">
+    <span class="kofi-icon">☕</span>
+    <span>Support</span>
+  </a>
+</div>
+
+<!-- Copyright -->
+<div class="copyright-bottom">
+  © 2026 <a href="https://creativefactory.studio" target="_blank" rel="noopener noreferrer">Creative Factory Studio</a>. All rights reserved.
+</div>
+
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
+
+// ==========================================
+// CONFIGURATION & DATA
+// ==========================================
 
 const MOODS = [
   { id:'focus', label:'Focus', bg:'#0c160c', sky:'#07100a', accent:'#4ade80', desc:'Deep work 🌿', music:'lofi' },
@@ -104,7 +390,13 @@ const MOODS = [
   { id:'cozy',  label:'Cozy',   bg:'#180f08', sky:'#100800', accent:'#fb923c', desc:'Warm 🕯️', music:'jazz' },
 ];
 
-// Schedule-based activities for ADHD time blindness support
+const SEASONS = {
+  spring: { name: 'Spring', bg: '#0d1f0d', window: '#87CEEB', particles: '🌸', particleAnim: 'petalFall' },
+  summer: { name: 'Summer', bg: '#0f1a0f', window: '#FFD700', particles: '☀️', particleAnim: 'sunBeam' },
+  fall:   { name: 'Fall',   bg: '#1a1208', window: '#FF8C00', particles: '🍂', particleAnim: 'leafSway' },
+  winter: { name: 'Winter', bg: '#080c12', window: '#B0E0E6', particles: '❄️', particleAnim: 'snowFall' },
+};
+
 const SCHEDULE_RULES = [
   { id: 'break',     label: 'Fresh Air',  interval: 45*60,  duration: 5,  priority: 1,  icon: '🌬️' },
   { id: 'eat',       label: 'Eat',        interval: 3*60*60, duration: 20, priority: 2,  icon: '🍜' },
@@ -125,16 +417,129 @@ const MSGS = {
   meditate: ['Breathe with me 🧘','Just 5 minutes of calm 🌸','You deserve this pause 💜'],
 };
 
-const AUDIO_CUES = {
-  meow: '🔊 Meow!',
-  meowUrgent: '🔊 Meow meow!',
-  purr: '🔊 Purr...',
+const FORTUNES = [
+  "🐱 Mochi says: Today will be purr-fect!",
+  "✨ The stars align for deep focus!",
+  "🌙 Trust your instincts, Yulia.",
+  "💜 You've got this, no matter what.",
+  "🌸 Small steps lead to big blooms.",
+  "⚡ Your energy is magnetic today!",
+  "🍜 Don't forget to fuel your brilliance.",
+  "🧹 Clear space = clear mind incoming.",
+];
+
+const BADGES = [
+  { id: 'first_focus', name: 'First Focus', icon: '🎯', desc: 'Complete your first session' },
+  { id: 'streak_3', name: 'On Fire', icon: '🔥', desc: '3-day streak' },
+  { id: 'streak_7', name: 'Week Warrior', icon: '⚡', desc: '7-day streak' },
+  { id: 'tidy_titan', name: 'Tidy Titan', icon: '🧹', desc: 'Tidy 5 times' },
+  { id: 'mochi_friend', name: 'Mochi\'s Bestie', icon: '🐱', desc: 'Feed Mochi 10 times' },
+  { id: 'deep_work', name: 'Deep Diver', icon: '🤿', desc: '60-min focus session' },
+];
+
+const TASK_TEMPLATES = {
+  'clean': ['Put away 5 items', 'Wipe one surface', 'Sweep for 2 mins', 'Take a photo of progress'],
+  'work': ['Open document', 'Write for 5 mins', 'Review what you wrote', 'Save progress'],
+  'email': ['Open inbox', 'Answer 3 emails', 'Archive old ones', 'Close inbox'],
+  'study': ['Read one page', 'Take notes', 'Review notes', 'Close book proudly'],
+  'exercise': ['Put on shoes', 'Stretch for 2 mins', 'Do 10 jumping jacks', 'Drink water'],
+  'cook': ['Gather ingredients', 'Prep one veggie', 'Start cooking', 'Plate beautifully'],
+  'default': ['Gather materials', 'Do first tiny step', 'Check progress', 'Celebrate completion'],
 };
 
-/* ───────────────────────── GIRL ───────────────────────── */
-function Girl({ pose, accent }) {
-  const skin  = '#f5c5a3';
-  const hair  = '#2d1b69';
+// ==========================================
+// COMPONENTS
+// ==========================================
+
+// --- FELIX CLOCK ---
+function FelixClock({ mood }) {
+  const isSleeping = mood === 'cozy';
+  return (
+    <div style={{ position:'absolute',top:'8%',left:'8%',width:28,height:28,zIndex:3 }}>
+      <div style={{
+        width:'100%',height:'100%',borderRadius:'50%',
+        background:'#1a1a1a',border:'2px solid #333',
+        boxShadow:'0 2px 8px rgba(0,0,0,0.5)',
+        position:'relative',overflow:'hidden',
+      }}>
+        <div style={{position:'absolute',top:'15%',left:'50%',transform:'translateX(-50%)',width:16,height:12}}>
+          <div style={{display:'flex',gap:4,justifyContent:'center'}}>
+            <div style={{width:5,height:5,background:'#fff',borderRadius:'50%',position:'relative',overflow:'hidden'}}>
+              <div style={{
+                position:'absolute',top:'30%',left:'20%',
+                width:2,height:2,background:'#000',borderRadius:'50%',
+                animation:isSleeping?'none':'clockEyes 4s ease-in-out infinite',
+              }} />
+            </div>
+            <div style={{width:5,height:5,background:'#fff',borderRadius:'50%',position:'relative',overflow:'hidden'}}>
+              <div style={{
+                position:'absolute',top:'30%',left:'20%',
+                width:2,height:2,background:'#000',borderRadius:'50%',
+                animation:isSleeping?'none':'clockEyes 4s ease-in-out infinite',
+              }} />
+            </div>
+          </div>
+          <div style={{position:'absolute',bottom:0,left:'50%',transform:'translateX(-50%)',width:3,height:2,background:'#fff',borderRadius:'50%'}} />
+        </div>
+        <div style={{
+          position:'absolute',top:'50%',left:'50%',
+          width:1,height:8,background:'#fff',
+          transformOrigin:'bottom center',
+          transform:'translateX(-50%) translateY(-100%)',
+          animation:'tailTick 60s linear infinite',
+        }} />
+        <div style={{
+          position:'absolute',top:'50%',left:'50%',
+          width:1,height:6,background:'#888',
+          transformOrigin:'bottom center',
+          transform:'translateX(-50%) translateY(-100%) rotate(45deg)',
+        }} />
+      </div>
+    </div>
+  );
+}
+
+// --- SEASONAL EFFECTS ---
+function SeasonalEffects({ season }) {
+  const config = SEASONS[season];
+  const particles = Array.from({length:8}, (_,i) => ({
+    id: i,
+    left: `${10 + (i * 10)}%`,
+    delay: `${i * 0.5}s`,
+    duration: `${3 + (i % 3)}s`,
+  }));
+
+  return (
+    <div style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:1}}>
+      {particles.map(p => (
+        <div key={p.id} style={{
+          position:'absolute',
+          top: '-10px',
+          left: p.left,
+          fontSize: 12,
+          animation: `${config.particleAnim} ${p.duration} ease-in ${p.delay} infinite`,
+          opacity: 0.6,
+        }}>
+          {config.particles}
+        </div>
+      ))}
+      {season === 'summer' && (
+        <div style={{
+          position:'absolute',top:'10%',right:'20%',
+          width:60,height:60,
+          background:'radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%)',
+          animation:'sunBeam 4s ease-in-out infinite',
+          borderRadius:'50%',
+        }} />
+      )}
+    </div>
+  );
+}
+
+// --- GIRL CHARACTER ---
+function Girl({ pose, accent, season }) {
+  const skin  = (charColors && charColors.skin) ? charColors.skin : '#f5c5a3';
+  const hair  = (charColors && charColors.hair) ? charColors.hair : '#2d1b69';
   const shirt = accent;
   const pants = '#374151';
   const isDancing   = pose === 'dance';
@@ -145,82 +550,88 @@ function Girl({ pose, accent }) {
   const isStretching= pose === 'stretch';
   const isTidying   = pose === 'tidy';
   const isMeditating= pose === 'meditate';
+  const isWaving    = pose === 'wave';
+  const isOpeningWindow = pose === 'openwindow';
 
-  const btm = isDancing ? '22%' : isSleeping ? '12%' : '15%';
+  const btm = isDancing ? '28%' : isSleeping ? '18%' : isWaving ? '30%' : isOpeningWindow ? '32%' : '22%';
 
   return (
     <div style={{
-      position:'absolute', bottom:btm, left:'50%',
-      transform:'translateX(-82%)',
+      position:'absolute', bottom:btm, left:isOpeningWindow?'65%':'50%',
+      transform:isOpeningWindow?'translateX(-50%) scaleX(-1)':'translateX(-82%)',
       width:38, zIndex:5,
-      transition:'bottom 0.55s cubic-bezier(0.34,1.56,0.64,1)',
+      transition:'all 0.8s cubic-bezier(0.34,1.56,0.64,1)',
       animation: isDancing ? 'girlSway 0.55s ease-in-out infinite' 
                : isSleeping ? 'sleepBreathe 4s ease-in-out infinite'
                : isMeditating ? 'meditate 3s ease-in-out infinite'
+               : isWaving ? 'none'
+               : isOpeningWindow ? 'walkToWindow 4s ease-in-out'
                : 'none',
     }}>
-
-      {/* ── hair back ── */}
+      {/* Hair back */}
       <div style={{position:'absolute',top:0,left:2,width:34,height:20,background:hair,borderRadius:'50% 50% 0 0',zIndex:0}} />
-
-      {/* ── head ── */}
+      
+      {/* Head */}
       <div style={{
         position:'absolute',top:2,left:5,width:28,height:24,
         background:skin,borderRadius:'45% 45% 40% 40%',zIndex:2,
         animation: isDancing ? 'headDance 0.55s ease-in-out infinite'
                  : isWorking ? 'headbob 2s ease-in-out infinite'
                  : isStretching ? 'headBack 2s ease-in-out infinite'
+                 : isWaving ? 'headbob 1s ease-in-out infinite'
                  : isSleeping ? 'none'
                  : 'breathe 3.5s ease-in-out infinite',
       }}>
-        {/* eyes - closed when sleeping/meditating */}
-        <div style={{position:'absolute',top:9,left:5,width:5,height:isSleeping||isMeditating?1:5,background:'#1e1b4b',borderRadius:isSleeping||isMeditating?'0':'50%',animation:isSleeping||isMeditating?'none':'gblink 4.5s ease-in-out infinite'}} />
+        <div style={{position:'absolute',top:9,left:5,width:5,height:isSleeping||isMeditating?1:isWaving?3:5,background:'#1e1b4b',borderRadius:isSleeping||isMeditating?'0':isWaving?'0 0 50% 50%':'50%',animation:isSleeping||isMeditating?'none':'gblink 4.5s ease-in-out infinite'}} />
         <div style={{position:'absolute',top:9,left:7,width:2,height:2,background:'white',borderRadius:'50%',opacity:isSleeping||isMeditating?0:1}} />
-        <div style={{position:'absolute',top:9,right:5,width:5,height:isSleeping||isMeditating?1:5,background:'#1e1b4b',borderRadius:isSleeping||isMeditating?'0':'50%',animation:isSleeping||isMeditating?'none':'gblink 4.5s ease-in-out 0.4s infinite'}} />
+        <div style={{position:'absolute',top:9,right:5,width:5,height:isSleeping||isMeditating?1:isWaving?3:5,background:'#1e1b4b',borderRadius:isSleeping||isMeditating?'0':isWaving?'0 0 50% 50%':'50%',animation:isSleeping||isMeditating?'none':'gblink 4.5s ease-in-out 0.4s infinite'}} />
         <div style={{position:'absolute',top:9,right:7,width:2,height:2,background:'white',borderRadius:'50%',opacity:isSleeping||isMeditating?0:1}} />
         
-        {/* mouth */}
         <div style={{
           position:'absolute',bottom:5,left:'50%',transform:'translateX(-50%)',
-          width:8,height:isSleeping?2:3,
+          width:isWaving?12:8,height:isSleeping?2:isWaving?6:3,
           borderBottom:isSleeping?'none':'2px solid #c87941',
           borderLeft:isSleeping?'none':'1px solid #c87941',
           borderRight:isSleeping?'none':'1px solid #c87941',
-          borderRadius:isSleeping?'50%':'0 0 4px 4px',
+          borderRadius:isSleeping?'50%':isWaving?'0 0 50% 50%':'0 0 4px 4px',
           background:isSleeping?'#c87941':'transparent',
           animation: isEating ? 'chew 0.9s ease-in-out infinite' : 'none',
         }} />
         
-        {/* blush - more when sleeping */}
-        <div style={{position:'absolute',bottom:7,left:2,width:6,height:3,background:isSleeping?'rgba(255,130,100,0.5)':'rgba(255,130,100,0.32)',borderRadius:'50%'}} />
-        <div style={{position:'absolute',bottom:7,right:2,width:6,height:3,background:isSleeping?'rgba(255,130,100,0.5)':'rgba(255,130,100,0.32)',borderRadius:'50%'}} />
+        <div style={{position:'absolute',bottom:7,left:2,width:6,height:3,background:isWaving?'rgba(255,130,100,0.5)':isSleeping?'rgba(255,130,100,0.5)':'rgba(255,130,100,0.32)',borderRadius:'50%'}} />
+        <div style={{position:'absolute',bottom:7,right:2,width:6,height:3,background:isWaving?'rgba(255,130,100,0.5)':isSleeping?'rgba(255,130,100,0.5)':'rgba(255,130,100,0.32)',borderRadius:'50%'}} />
       </div>
 
-      {/* ── bangs ── */}
+      {/* Bangs */}
       <div style={{position:'absolute',top:2,left:3,width:14,height:10,background:hair,borderRadius:'50% 30% 40% 50%',zIndex:3}} />
       <div style={{position:'absolute',top:1,left:16,width:9,height:7,background:hair,borderRadius:'30% 50% 50% 30%',zIndex:3}} />
       
-      {/* ponytail - down when sleeping */}
+      {/* Ponytail */}
       <div style={{position:'absolute',top:isSleeping?8:4,right:isSleeping?-2:0,width:8,height:isSleeping?20:16,background:hair,borderRadius:'40% 60% 60% 40%',zIndex:1,transformOrigin:'top center',
-        animation: isDancing ? 'ponyDance 0.4s ease-in-out infinite' : isSleeping?'sway 4s ease-in-out infinite':'ponyIdle 3s ease-in-out infinite',
+        animation: isDancing ? 'ponyDance 0.4s ease-in-out infinite' 
+                 : isWaving ? 'ponyDance 0.6s ease-in-out infinite'
+                 : isSleeping?'sway 4s ease-in-out infinite'
+                 :'ponyIdle 3s ease-in-out infinite',
       }} />
 
-      {/* ── left arm ── */}
+      {/* Left arm */}
       <div style={{
         position:'absolute',top: isDancing ? 30 : isSleeping ? 28 : 26,left: isDancing ? -5 : 0,
-        width:6,height:isStretching?20:16,background:skin,borderRadius:4,zIndex:1,
-        transformOrigin: isDancing || isStretching ? 'bottom center' : isFeeding ? 'top center' : 'top center',
+        width:6,height:isStretching||isOpeningWindow?20:16,background:skin,borderRadius:4,zIndex:1,
+        transformOrigin: isDancing || isStretching || isOpeningWindow ? 'bottom center' : isFeeding ? 'top center' : 'top center',
         animation: isDancing  ? 'waveL 0.52s ease-in-out infinite'
                  : isFeeding  ? 'reachL 1.4s ease-in-out infinite'
                  : isStretching? 'stretchArmL 2s ease-in-out infinite'
-                 : isTidying  ? 'tidyReach 0.8s ease-in-out infinite'
+                 : isTidying  ? 'tidySweep 0.8s ease-in-out infinite'
+                 : isWaving    ? 'waveHello 1.5s ease-in-out'
+                 : isOpeningWindow ? 'stretchArmL 2s ease-in-out'
                  : isWorking  ? 'typeL 0.38s ease-in-out infinite'
                  : isSleeping ? 'none'
                  : 'none',
         transition:'top 0.4s ease,left 0.4s ease',
       }} />
 
-      {/* ── body / shirt ── */}
+      {/* Body */}
       <div style={{
         position:'absolute',top:24,left:4,width:30,height:20,
         background:shirt+'cc',borderRadius:'20% 20% 10% 10%',zIndex:2,
@@ -228,7 +639,6 @@ function Girl({ pose, accent }) {
         transform: isTidying ? 'translateY(3px)' : 'none',
       }} />
 
-      {/* meditation aura */}
       {isMeditating && (
         <div style={{
           position:'absolute',top:-10,left:-10,width:58,height:58,
@@ -239,37 +649,49 @@ function Girl({ pose, accent }) {
         }} />
       )}
 
-      {/* ── right arm ── */}
+      {/* Right arm */}
       <div style={{
         position:'absolute',top: isDancing ? 30 : isSleeping ? 28 : 26,right: isDancing ? -5 : 0,
-        width:6,height: isEating ? 18 : isStretching?20:16,background:skin,borderRadius:4,zIndex:1,
-        transformOrigin: isDancing || isEating || isStretching ? 'bottom center' : 'top center',
+        width:6,height: isEating ? 18 : isStretching||isOpeningWindow?20:16,background:skin,borderRadius:4,zIndex:1,
+        transformOrigin: isDancing || isEating || isStretching || isOpeningWindow ? 'bottom center' : 'top center',
         animation: isDancing ? 'waveR 0.52s ease-in-out 0.26s infinite'
                  : isEating  ? 'eatArm 1.1s ease-in-out infinite'
                  : isStretching? 'stretchArmR 2s ease-in-out infinite'
-                 : isTidying  ? 'tidyReach 0.8s ease-in-out 0.4s infinite'
+                 : isTidying  ? 'tidySweep 0.8s ease-in-out 0.4s infinite'
+                 : isOpeningWindow ? 'stretchArmR 2s ease-in-out'
                  : isWorking ? 'typeR 0.38s ease-in-out 0.19s infinite'
                  : isSleeping ? 'none'
                  : 'none',
         transition:'top 0.4s ease,right 0.4s ease',
       }} />
       
-      {/* fork when eating */}
       {isEating && (
         <div style={{position:'absolute',top:26,right:0,width:2,height:14,background:'#9ca3af',borderRadius:1,
           transformOrigin:'bottom center',animation:'eatArm 1.1s ease-in-out infinite',zIndex:6}} />
       )}
 
-      {/* ── pants ── */}
+      {isTidying && (
+        <div style={{position:'absolute',top:35,right:-12,width:4,height:24,background:'#8b5a2b',borderRadius:2,zIndex:6,transformOrigin:'top center',animation:'tidySweep 0.8s ease-in-out infinite'}}>
+          <div style={{position:'absolute',bottom:-4,left:-3,width:10,height:8,background:'#d4a574',borderRadius:'0 0 50% 50%',clipPath:'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)'}} />
+        </div>
+      )}
+
+      {isTidying && [0,1,2].map(i => (
+        <div key={i} style={{
+          position:'absolute',top:50,right:-20+i*8,
+          width:3,height:3,background:'rgba(200,200,200,0.6)',borderRadius:'50%',
+          animation:`dust 1s ease-out ${i*0.3}s infinite`,
+        }} />
+      ))}
+
+      {/* Pants */}
       <div style={{position:'absolute',top:42,left:4,width:30,height: isDancing ? 18 : isSleeping?8:13,background:pants,borderRadius:'0 0 8px 8px',zIndex:2,transition:'height 0.4s ease'}} />
 
-      {/* dancing legs */}
       {isDancing && <>
         <div style={{position:'absolute',top:58,left:4,width:12,height:16,background:pants,borderRadius:'0 0 5px 5px',transformOrigin:'top center',animation:'kickL 0.55s ease-in-out infinite',zIndex:2}} />
         <div style={{position:'absolute',top:58,right:4,width:12,height:16,background:pants,borderRadius:'0 0 5px 5px',transformOrigin:'top center',animation:'kickR 0.55s ease-in-out 0.27s infinite',zIndex:2}} />
       </>}
 
-      {/* sleeping z's */}
       {isSleeping && ['Z','z'].map((z,i) => (
         <div key={i} style={{
           position:'absolute',top:-15-i*8,left:20+i*5,
@@ -278,18 +700,16 @@ function Girl({ pose, accent }) {
         }}>{z}</div>
       ))}
 
-      {/* shoes */}
+      {/* Shoes */}
       <div style={{position:'absolute',bottom:0,left:3,width:13,height:5,background:'#111',borderRadius:'40% 40% 50% 50%',zIndex:3}} />
       <div style={{position:'absolute',bottom:0,right:3,width:13,height:5,background:'#111',borderRadius:'40% 40% 50% 50%',zIndex:3}} />
 
-      {/* plate when eating */}
       {isEating && (
         <div style={{position:'absolute',top:49,left:10,width:22,height:7,background:'#f8fafc',borderRadius:'50%',border:'1.5px solid #e2e8f0',zIndex:4,display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div style={{width:16,height:4,borderRadius:'50%',background:'#fde68a'}} />
         </div>
       )}
 
-      {/* cat bowl when feeding */}
       {isFeeding && (
         <div style={{position:'absolute',bottom:-18,left:-16,zIndex:4}}>
           <div style={{width:24,height:10,background:'#7c3aed',borderRadius:'0 0 12px 12px',border:'2px solid #5b21b6',position:'relative',overflow:'hidden'}}>
@@ -298,183 +718,218 @@ function Girl({ pose, accent }) {
           <div style={{position:'absolute',top:-1,left:-1,width:26,height:5,background:'#8b5cf6',borderRadius:'50%'}} />
         </div>
       )}
-
-      {/* tidy cloth */}
-      {isTidying && (
-        <div style={{position:'absolute',top:30,right:-8,width:12,height:8,background:'#f472b6',borderRadius:2,zIndex:6,animation:'tidyReach 0.8s ease-in-out infinite'}} />
-      )}
     </div>
   );
 }
 
-/* ───────────────────────── CAT ───────────────────────── */
-function Cat({ pose, accent }) {
+// --- CAT CHARACTER WITH EVOLUTION ---
+function Cat({ pose, accent, evolution }) {
   const fur  = '#d4a0d4';
   const dark = '#9b6b9b';
   const isDancing = pose === 'dance';
   const isFeeding = pose === 'feed';
   const isSleeping = pose === 'sleep';
   const isMeditating = pose === 'meditate';
+  const isWaving = pose === 'wave';
+  const isTrick = pose === 'trick';
   
-  const btm = (isDancing || isFeeding) ? '18%' : isSleeping ? '15%' : '26%';
+  const btm = (isDancing || isFeeding) ? '24%' : isSleeping ? '21%' : isWaving ? '28%' : '32%';
+
+  // Evolution accessories
+  const accessories = {
+    0: null, // Baby
+    1: <div style={{position:'absolute',top:-2,left:'50%',transform:'translateX(-50%)',width:8,height:4,background:'#ff6b9d',borderRadius:'50% 50% 0 0',zIndex:10}} />, // Bow
+    2: <div style={{position:'absolute',top:12,left:-2,width:6,height:6,border:'2px solid #ffd700',borderRadius:'50%',zIndex:10}} />, // Collar
+    3: <div style={{position:'absolute',top:-4,left:'50%',transform:'translateX(-50%)',fontSize:12,zIndex:10}}>👑</div>, // Crown
+    4: <div style={{position:'absolute',top:-2,left:'50%',transform:'translateX(-50%)',width:10,height:5,background:'linear-gradient(45deg, #ff6b9d, #ffd700)',borderRadius:'50%',zIndex:10}} />, // Royal
+  };
 
   return (
     <div style={{
-      position:'absolute', bottom:btm, left:'18%',
+      position:'absolute', bottom:btm, left:isWaving||isTrick?'50%':'18%',
+      transform:isWaving||isTrick?'translateX(-50%)':'none',
       width:32,height:28,zIndex:4,
-      transition:'bottom 0.5s ease',
+      transition:'all 0.8s ease',
       animation: isDancing  ? 'catDance 0.8s ease-in-out infinite'
                : isFeeding  ? 'catEatBob 0.9s ease-in-out infinite'
                : isSleeping ? 'catPurr 2s ease-in-out infinite'
+               : isWaving   ? 'catHello 1s ease-in-out'
+               : isTrick    ? 'catTrick 0.8s ease-in-out'
                : isMeditating ? 'none'
                : 'catwalk 8s ease-in-out 1s infinite',
     }}>
-      {/* ears */}
+      {accessories[evolution] || null}
+      
+      {/* Ears */}
       <div style={{position:'absolute',top:0,left:3,width:0,height:0,borderLeft:'5px solid transparent',borderRight:'5px solid transparent',borderBottom:'9px solid '+fur}} />
       <div style={{position:'absolute',top:0,right:3,width:0,height:0,borderLeft:'5px solid transparent',borderRight:'5px solid transparent',borderBottom:'9px solid '+fur}} />
       
-      {/* inner ears */}
       <div style={{position:'absolute',top:2,left:5,width:0,height:0,borderLeft:'3px solid transparent',borderRight:'3px solid transparent',borderBottom:'5px solid '+dark+'55'}} />
       <div style={{position:'absolute',top:2,right:5,width:0,height:0,borderLeft:'3px solid transparent',borderRight:'3px solid transparent',borderBottom:'5px solid '+dark+'55'}} />
       
-      {/* head */}
+      {/* Head */}
       <div style={{position:'absolute',top:5,left:2,width:28,height:18,background:fur,borderRadius:'50% 50% 40% 40%'}}>
-        {/* eyes - closed when sleeping */}
-        <div style={{position:'absolute',top:5,left:5,width:5,height:isSleeping?1:5,background:isSleeping?'#9b6b9b':accent,borderRadius:isSleeping?'0':'50%',boxShadow:isSleeping?'none':'0 0 4px '+accent,animation:isSleeping?'none':'catblink 3.8s ease-in-out infinite'}} />
-        <div style={{position:'absolute',top:5,right:5,width:5,height:isSleeping?1:5,background:isSleeping?'#9b6b9b':accent,borderRadius:isSleeping?'0':'50%',boxShadow:isSleeping?'none':'0 0 4px '+accent,animation:isSleeping?'none':'catblink 3.8s ease-in-out 0.6s infinite'}} />
+        <div style={{position:'absolute',top:5,left:5,width:5,height:isSleeping?1:isWaving||isTrick?6:5,background:isSleeping?'#9b6b9b':accent,borderRadius:isSleeping?'0':'50%',boxShadow:isSleeping?'none':'0 0 4px '+accent,animation:isSleeping?'none':isWaving?'catblink 2s ease-in-out':isTrick?'catblink 1s ease-in-out':'catblink 3.8s ease-in-out infinite'}} />
+        <div style={{position:'absolute',top:5,right:5,width:5,height:isSleeping?1:isWaving||isTrick?6:5,background:isSleeping?'#9b6b9b':accent,borderRadius:isSleeping?'0':'50%',boxShadow:isSleeping?'none':'0 0 4px '+accent,animation:isSleeping?'none':isWaving?'catblink 2s ease-in-out 0.3s':isTrick?'catblink 1s ease-in-out 0.2s':'catblink 3.8s ease-in-out 0.6s infinite'}} />
         
         {!isSleeping && <>
-          <div style={{position:'absolute',top:6,left:7,width:2,height:4,background:'#0a0a0a',borderRadius:1}} />
-          <div style={{position:'absolute',top:6,right:7,width:2,height:4,background:'#0a0a0a',borderRadius:1}} />
+          <div style={{position:'absolute',top:6,left:7,width:2,height:isWaving||isTrick?5:4,background:'#0a0a0a',borderRadius:1}} />
+          <div style={{position:'absolute',top:6,right:7,width:2,height:isWaving||isTrick?5:4,background:'#0a0a0a',borderRadius:1}} />
         </>}
         
-        {/* nose */}
         <div style={{position:'absolute',bottom:5,left:'50%',transform:'translateX(-50%)',width:4,height:3,background:'#f9a8d4',borderRadius:'40% 40% 50% 50%'}} />
         
-        {/* whiskers */}
         <div style={{position:'absolute',top:8,left:-9,width:11,height:1,background:dark+'77',borderRadius:1}} />
         <div style={{position:'absolute',top:11,left:-9,width:11,height:1,background:dark+'77',borderRadius:1}} />
         <div style={{position:'absolute',top:8,right:-9,width:11,height:1,background:dark+'77',borderRadius:1}} />
         <div style={{position:'absolute',top:11,right:-9,width:11,height:1,background:dark+'77',borderRadius:1}} />
       </div>
       
-      {/* body */}
       <div style={{position:'absolute',top:18,left:4,width:24,height:10,background:fur,borderRadius:'30% 30% 50% 50%'}} />
       
-      {/* tail */}
       <div style={{position:'absolute',top:14,right:-10,width:11,height:7,borderTop:'3px solid '+fur,borderRight:'3px solid '+fur,borderRadius:'0 50% 50% 0',transformOrigin:'left center',
         animation: isDancing ? 'tailFast 0.3s ease-in-out infinite' 
+                 : isWaving || isTrick ? 'tailFast 0.4s ease-in-out infinite'
                  : isSleeping ? 'tailWag 3s ease-in-out infinite'
                  : 'tailWag 2s ease-in-out infinite',
       }} />
       
-      {/* paws */}
       <div style={{position:'absolute',bottom:0,left:4,width:8,height:5,background:fur,borderRadius:'50% 50% 40% 40%'}} />
       <div style={{position:'absolute',bottom:0,right:4,width:8,height:5,background:fur,borderRadius:'50% 50% 40% 40%'}} />
     </div>
   );
 }
 
-/* ───────────────────────── ROOM ───────────────────────── */
-function Room({ mood, pose, accent }) {
-  const md = MOODS.find(function(m){ return m.id === mood; }) || MOODS[0];
+// --- ROOM WITH SEASONS ---
+function Room({ mood, pose, accent, season }) {
+  const md = MOODS.find(m => m.id === mood) || MOODS[0];
+  const seasonConfig = SEASONS[season];
   const raining = mood === 'storm';
   const isWorking = pose === 'work';
   const isDancing = pose === 'dance';
   const isSleeping = pose === 'sleep';
   const isMeditating = pose === 'meditate';
+  const isOpeningWindow = pose === 'openwindow';
 
   return (
     <>
-      {/* sky */}
-      <div style={{position:'absolute',inset:0,background:md.sky}} />
+      <div style={{position:'absolute',inset:0,background:seasonConfig.bg}} />
+      
+      <SeasonalEffects season={season} />
 
-      {/* stars - dim when sleeping */}
-      {Array.from({length:22},function(_,i){
-        return (
-          <div key={i} style={{
-            position:'absolute',
-            top:(8+Math.sin(i*1.8)*28+22)+'%', left:(i*4.7%94)+'%',
-            width:i%5===0?2:1, height:i%5===0?2:1,
-            borderRadius:'50%', background:i%7===0?accent:'#fff',
-            opacity:isSleeping?0.05:(0.2+(i%3)*0.14),
-            animation:isSleeping?'none':'startwink '+(2.4+(i%4)*0.65)+'s ease-in-out '+(i*0.3)+'s infinite',
-          }}/> );
-      })}
+      {Array.from({length:22},(_,i) => (
+        <div key={i} style={{
+          position:'absolute',
+          top:(8+Math.sin(i*1.8)*28+22)+'%', left:(i*4.7%94)+'%',
+          width:i%5===0?2:1, height:i%5===0?2:1,
+          borderRadius:'50%', background:i%7===0?accent:'#fff',
+          opacity:isSleeping?0.05:(0.2+(i%3)*0.14),
+          animation:isSleeping?'none':'startwink '+(2.4+(i%4)*0.65)+'s ease-in-out '+(i*0.3)+'s infinite',
+        }}/>
+      ))}
 
-      {/* rain */}
-      {raining && Array.from({length:28},function(_,i){
-        return (
-          <div key={i} style={{
-            position:'absolute',top:0,left:(i*3.6%100)+'%',
-            width:1,height:11,background:'rgba(147,197,253,0.32)',
-            animation:'raindrop '+(0.5+(i%5)*0.07)+'s linear '+(i*0.08)+'s infinite',
-          }}/> );
-      })}
+      {raining && Array.from({length:28},(_,i) => (
+        <div key={i} style={{
+          position:'absolute',top:0,left:(i*3.6%100)+'%',
+          width:1,height:11,background:'rgba(147,197,253,0.32)',
+          animation:'raindrop '+(0.5+(i%5)*0.07)+'s linear '+(i*0.08)+'s infinite',
+        }}/>
+      ))}
 
-      {/* moon */}
       <div style={{position:'absolute',top:'7%',right:'14%',width:18,height:18,borderRadius:'50%',background:'#fef9c3',boxShadow:'0 0 10px rgba(254,249,195,0.5)',opacity:raining?0.2:isSleeping?0.3:0.82}} />
 
-      {/* window - dark when sleeping */}
-      <div style={{position:'absolute',top:'5%',left:'50%',transform:'translateX(-50%)',width:90,height:74,border:'3px solid #4b3b2a',borderRadius:4,overflow:'hidden',boxShadow:'inset 0 0 16px rgba(0,0,0,0.6)',opacity:isSleeping?0.3:1}}>
-        <div style={{position:'absolute',inset:0,background:md.sky+'dd'}} />
-        {Array.from({length:5},function(_,i){ return <div key={i} style={{position:'absolute',top:(12+i*14)+'%',left:(10+i*16)+'%',width:1,height:1,borderRadius:'50%',background:'#fff',opacity:0.5,animation:isSleeping?'none':'startwink '+(2+i*0.5)+'s ease-in-out '+(i*0.4)+'s infinite'}} />; })}
-        {raining && Array.from({length:8},function(_,i){ return <div key={i} style={{position:'absolute',top:0,left:(i*13)+'%',width:1,height:8,background:'rgba(147,197,253,0.4)',animation:'raindrop '+(0.45+i*0.06)+'s linear '+(i*0.07)+'s infinite'}} />; })}
-        <div style={{position:'absolute',top:0,left:'50%',width:2,height:'100%',background:'#4b3b2a'}} />
-        <div style={{position:'absolute',top:'50%',left:0,width:'100%',height:2,background:'#4b3b2a'}} />
-        <div style={{position:'absolute',top:0,left:0,width:14,height:'100%',background:'linear-gradient(to right,rgba(124,58,237,0.15),transparent)'}} />
-        <div style={{position:'absolute',top:0,right:0,width:14,height:'100%',background:'linear-gradient(to left,rgba(124,58,237,0.15),transparent)'}} />
+      {/* Window */}
+      <div style={{
+        position:'absolute',top:'5%',left:'50%',transform:'translateX(-50%)',
+        width:90,height:74,zIndex:2,
+      }}>
+        <div style={{
+          position:'absolute',inset:0,
+          border:'3px solid #4b3b2a',borderRadius:4,overflow:'hidden',
+          boxShadow:'inset 0 0 16px rgba(0,0,0,0.6)',
+          background:isOpeningWindow?'transparent':seasonConfig.window+'dd',
+          opacity:isSleeping?0.3:1,
+        }}>
+          {!isOpeningWindow && (
+            <>
+              <div style={{position:'absolute',inset:0,background:seasonConfig.window+'dd'}} />
+              {Array.from({length:5},(_,i) => <div key={i} style={{position:'absolute',top:(12+i*14)+'%',left:(10+i*16)+'%',width:1,height:1,borderRadius:'50%',background:'#fff',opacity:0.5,animation:isSleeping?'none':'startwink '+(2+i*0.5)+'s ease-in-out '+(i*0.4)+'s infinite'}} />)}
+              {raining && Array.from({length:8},(_,i) => <div key={i} style={{position:'absolute',top:0,left:(i*13)+'%',width:1,height:8,background:'rgba(147,197,253,0.4)',animation:'raindrop '+(0.45+i*0.06)+'s linear '+(i*0.07)+'s infinite'}} />)}
+            </>
+          )}
+          {isOpeningWindow && (
+            <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom, rgba(135,206,235,0.3), transparent)'}} />
+          )}
+          <div style={{position:'absolute',top:0,left:'50%',width:2,height:'100%',background:'#4b3b2a'}} />
+          <div style={{position:'absolute',top:'50%',left:0,width:'100%',height:2,background:'#4b3b2a'}} />
+        </div>
+        
+        <div style={{
+          position:'absolute',top:0,left:0,width:'50%',height:'100%',
+          background:isOpeningWindow?'rgba(200,230,255,0.2)':seasonConfig.window+'dd',
+          borderRight:'2px solid #4b3b2a',
+          transformOrigin:'left center',
+          animation:isOpeningWindow?'openWindow 4s ease-in-out':'none',
+          opacity:isSleeping?0.3:1,
+        }}>
+          {!isOpeningWindow && <div style={{position:'absolute',inset:0,background:seasonConfig.window+'dd'}} />}
+        </div>
+        
+        {isOpeningWindow && ['~','~','~'].map((t,i) => (
+          <div key={i} style={{
+            position:'absolute',top:20+i*15,left:20+i*20,
+            fontSize:12,color:'rgba(255,255,255,0.4)',
+            animation:`floatnote 2s ease-out ${i*0.5}s infinite`,
+          }}>{t}</div>
+        ))}
       </div>
 
-      {/* plant */}
+      {/* Plant */}
       <div style={{position:'absolute',top:'38%',left:'70%'}}>
         <div style={{width:6,height:10,background:'#92400e',borderRadius:'2px 2px 0 0',marginLeft:3}} />
         <div style={{width:15,height:13,borderRadius:'60% 60% 40% 40%',background:isSleeping?'#0f291e':'#166534',marginTop:-5,transition:'background 0.5s'}} />
         <div style={{width:10,height:10,borderRadius:'50%',background:isSleeping?'#14522d':'#15803d',marginTop:-5,marginLeft:3,transition:'background 0.5s'}} />
       </div>
 
-      {/* bookshelf */}
+      {/* Bookshelf */}
       <div style={{position:'absolute',top:'18%',right:'7%',width:34,height:64,background:'#3b2a1a',borderRadius:3,overflow:'hidden',opacity:isSleeping?0.4:1}}>
-        {['#dc2626','#2563eb','#059669','#d97706','#7c3aed','#ec4899'].map(function(c,i){
-          return <div key={i} style={{position:'absolute',bottom:3+i*10,left:3,width:3+i%3*2,height:8,background:c,borderRadius:'1px 1px 0 0',opacity:0.9}} />;
-        })}
-        {['#9ca3af','#f59e0b','#06b6d4','#a78bfa'].map(function(c,i){
-          return <div key={i} style={{position:'absolute',bottom:3+i*14,left:10+i*4,width:3,height:9,background:c,borderRadius:'1px 1px 0 0',opacity:0.8}} />;
-        })}
+        {['#dc2626','#2563eb','#059669','#d97706','#7c3aed','#ec4899'].map((c,i) => (
+          <div key={i} style={{position:'absolute',bottom:3+i*10,left:3,width:3+i%3*2,height:8,background:c,borderRadius:'1px 1px 0 0',opacity:0.9}} />
+        ))}
       </div>
 
-      {/* fairy lights - off when sleeping */}
+      {/* Fairy lights */}
       <div style={{position:'absolute',top:'2.5%',left:'5%',right:'5%',height:2}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'rgba(255,255,255,0.1)',borderRadius:1}} />
-        {Array.from({length:11},function(_,i){
+        {Array.from({length:11},(_,i) => {
           const cs=[accent,'#fbbf24','#f472b6','#34d399'];
           return (
             <div key={i} style={{
               position:'absolute',top:1,left:(i*9.5)+'%',
               width:5,height:5,borderRadius:'50%',background:isSleeping?'#333':cs[i%4],boxShadow:isSleeping?'none':'0 0 5px '+cs[i%4],
               animation:isSleeping?'none':'flicker '+(2.4+i*0.3)+'s ease-in-out '+(i*0.22)+'s infinite',
-            }}/> );
+            }}/>
+          );
         })}
       </div>
 
-      {/* floor */}
+      {/* Floor */}
       <div style={{position:'absolute',bottom:0,left:0,right:0,height:'28%',background:isSleeping?'#0f0a05':'#1c1208',transition:'background 0.5s'}} />
       <div style={{position:'absolute',bottom:'28%',left:0,right:0,height:2,background:'rgba(0,0,0,0.3)'}} />
 
-      {/* desk */}
+      {/* Desk */}
       <div style={{position:'absolute',bottom:'24%',left:'9%',right:'9%',height:17,background:'#4b3b2a',borderRadius:'3px 3px 0 0',boxShadow:'0 4px 16px rgba(0,0,0,0.5)',opacity:isSleeping?0.3:1}} />
       <div style={{position:'absolute',bottom:'24%',left:'9%',right:'9%',height:3,background:'#5c4a35',borderRadius:'3px 3px 0 0',opacity:isSleeping?0.3:1}} />
       
-      {/* legs */}
       <div style={{position:'absolute',bottom:0,left:'13%',width:8,height:'25%',background:'#3b2a1a',borderRadius:'0 0 3px 3px',opacity:isSleeping?0.3:1}} />
-      <div style={{position:'absolute',bottom:0,right:'13%',width:8,height:'25%',background:'##3b2a1a',borderRadius:'0 0 3px 3px',opacity:isSleeping?0.3:1}} />
+      <div style={{position:'absolute',bottom:0,right:'13%',width:8,height:'25%',background:'#3b2a1a',borderRadius:'0 0 3px 3px',opacity:isSleeping?0.3:1}} />
 
-      {/* monitor - off when sleeping */}
+      {/* Monitor */}
       <div style={{position:'absolute',bottom:'37%',left:'50%',transform:'translateX(-50%)',width:46,height:32,background:isSleeping?'#0a0a0a':'#111',borderRadius:3,border:'2px solid '+(isSleeping?'#1a1a1a':'#374151'),animation:isSleeping?'none':'screenglo 3s ease-in-out infinite',boxShadow:isSleeping?'none':'0 0 12px '+accent+'55'}}>
         {!isSleeping && (
           <div style={{position:'absolute',inset:2,background:md.sky,borderRadius:2,overflow:'hidden'}}>
             <div style={{position:'absolute',top:2,left:2,right:2,height:2,background:accent+'44',borderRadius:1}} />
-            {[6,9,12,15].map(function(t,i){ return <div key={i} style={{position:'absolute',top:t,left:2,right:4+i*3,height:1,background:'rgba(255,255,255,'+(0.12-i*0.02)+')',borderRadius:1}} />; })}
+            {[6,9,12,15].map((t,i) => <div key={i} style={{position:'absolute',top:t,left:2,right:4+i*3,height:1,background:'rgba(255,255,255,'+(0.12-i*0.02)+')',borderRadius:1}} />)}
             {isWorking && <div style={{position:'absolute',top:6,left:2,width:2,height:10,background:accent,animation:'pulseglo 0.8s ease-in-out infinite'}} />}
           </div>
         )}
@@ -482,21 +937,21 @@ function Room({ mood, pose, accent }) {
       <div style={{position:'absolute',bottom:'36%',left:'50%',transform:'translateX(-50%)',width:9,height:5,background:isSleeping?'#1a1a1a':'#374151'}} />
       <div style={{position:'absolute',bottom:'35%',left:'50%',transform:'translateX(-50%)',width:20,height:3,background:isSleeping?'#1a1a1a':'#4b5563',borderRadius:1}} />
 
-      {/* mug */}
+      {/* Mug - seasonal */}
       <div style={{position:'absolute',bottom:'37.5%',right:'21%',opacity:isSleeping?0.3:1}}>
-        <div style={{width:11,height:11,background:'#7c3aed',borderRadius:'20% 20% 30% 30%',border:'1.5px solid #5b21b6',position:'relative'}}>
+        <div style={{width:11,height:11,background:season==='fall'?'#d2691e':season==='winter'?'#87CEEB':'#7c3aed',borderRadius:'20% 20% 30% 30%',border:'1.5px solid '+(season==='fall'?'#8b4513':season==='winter'?'#4682B4':'#5b21b6'),position:'relative'}}>
           <div style={{position:'absolute',top:2,left:1,right:1,height:3,background:'rgba(255,255,255,0.11)',borderRadius:'10% 10% 0 0'}} />
-          <div style={{position:'absolute',top:2,right:-3,width:4,height:6,border:'1.5px solid #5b21b6',borderLeft:'none',borderRadius:'0 4px 4px 0'}} />
+          <div style={{position:'absolute',top:2,right:-3,width:4,height:6,border:'1.5px solid '+(season==='fall'?'#8b4513':season==='winter'?'#4682B4':'#5b21b6'),borderLeft:'none',borderRadius:'0 4px 4px 0'}} />
         </div>
         {!isSleeping && (
           <>
-            <div style={{position:'absolute',top:-7,left:2,fontSize:7,color:'rgba(255,255,255,0.3)',animation:'floatnote 2.2s ease-out infinite'}}>~</div>
+            <div style={{position:'absolute',top:-7,left:2,fontSize:7,color:'rgba(255,255,255,0.3)',animation:'floatnote 2.2s ease-out infinite'}}>{season==='winter'?'❄️':'~'}</div>
             <div style={{position:'absolute',top:-7,right:1,fontSize:7,color:'rgba(255,255,255,0.2)',animation:'floatnote 2.2s ease-out 0.9s infinite'}}>~</div>
           </>
         )}
       </div>
 
-      {/* chair */}
+      {/* Chair */}
       <div style={{position:'absolute',bottom:'13%',left:'50%',transform:'translateX(-62%)',width:44,opacity:isSleeping?0.3:1}}>
         <div style={{width:'100%',height:14,background:isSleeping?'#0f2440':'#1e3a5f',borderRadius:'4px 4px 0 0'}} />
         <div style={{width:'100%',height:8,background:isSleeping?'#0f2440':'#1e3a5f',borderRadius:3,marginTop:1}} />
@@ -506,40 +961,38 @@ function Room({ mood, pose, accent }) {
         </div>
       </div>
 
-      {/* rug */}
+      {/* Rug */}
       <div style={{position:'absolute',bottom:'1%',left:'18%',right:'18%',height:7,background:accent+'15',borderRadius:4,border:'1px solid '+accent+'22',opacity:isSleeping?0.3:1}} />
 
-      {/* music notes when dancing */}
-      {isDancing && ['♪','♫','♩'].map(function(n,i){
-        return (
-          <div key={i} style={{
-            position:'absolute',top:'45%',left:(22+i*12)+'%',
-            fontSize:13,color:accent,opacity:0,
-            animation:'floatnote 2s ease-out '+(i*0.75)+'s infinite',
-          }}>{n}</div>
-        );
-      })}
+      {/* Music notes */}
+      {isDancing && ['♪','♫','♩'].map((n,i) => (
+        <div key={i} style={{
+          position:'absolute',top:'45%',left:(22+i*12)+'%',
+          fontSize:13,color:accent,opacity:0,
+          animation:'floatnote 2s ease-out '+(i*0.75)+'s infinite',
+        }}>{n}</div>
+      ))}
     </>
   );
 }
 
-/* ───────────────────────── CONFETTI ───────────────────────── */
+// --- CONFETTI ---
 function Confetti({ active, accent }) {
   if (!active) return null;
-  const pieces = Array.from({length:16},function(_,i){
+  const pieces = Array.from({length:16},(_,i) => {
     const cs=[accent,'#f472b6','#fbbf24','#34d399','#60a5fa','#a78bfa'];
     return {key:i, color:cs[i%cs.length], left:(4+(i*6.1)%90)+'%', delay:(i*0.13)+'s', dur:(0.7+i%3*0.2)+'s', size:4+(i%4)};
   });
   return (
     <div style={{position:'absolute',top:0,left:0,right:0,height:110,pointerEvents:'none',overflow:'hidden',zIndex:20}}>
-      {pieces.map(function(p){ return (
+      {pieces.map(p => (
         <div key={p.key} style={{position:'absolute',top:-8,left:p.left,width:p.size,height:p.size,background:p.color,borderRadius:p.key%3===0?'50%':'2px',animation:'confettiFall '+p.dur+' ease-in '+p.delay+' infinite'}} />
-      ); })}
+      ))}
     </div>
   );
 }
 
-/* ───────────────────────── NOTIF ───────────────────────── */
+// --- NOTIFICATION ---
 function Notif({ text, accent, id, urgent }) {
   return (
     <div key={id} style={{
@@ -558,7 +1011,7 @@ function Notif({ text, accent, id, urgent }) {
   );
 }
 
-/* ───────────────────────── TIMER RING ───────────────────────── */
+// --- TIMER RING ---
 function TimerRing({ elapsed, duration, accent }) {
   const total = duration * 60;
   const pct   = Math.min(elapsed / total, 1);
@@ -583,414 +1036,1003 @@ function TimerRing({ elapsed, duration, accent }) {
   );
 }
 
-/* ───────────────────────── DAILY PROGRESS ───────────────────────── */
-function DailyProgress({ completed, accent }) {
-  const activities = ['eat', 'break', 'tidy', 'meditate'];
+// --- TASK BREAKDOWN AI ---
+function TaskBreakdown({ onBreakdown, accent }) {
+  const [task, setTask] = useState('');
+  const [steps, setSteps] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleBreakdown = () => {
+    if (!task.trim()) return;
+    setLoading(true);
+    
+    // Simulate AI processing
+    setTimeout(() => {
+      const lower = task.toLowerCase();
+      let template = TASK_TEMPLATES.default;
+      
+      if (lower.includes('clean') || lower.includes('tidy')) template = TASK_TEMPLATES.clean;
+      else if (lower.includes('email') || lower.includes('message')) template = TASK_TEMPLATES.email;
+      else if (lower.includes('study') || lower.includes('read')) template = TASK_TEMPLATES.study;
+      else if (lower.includes('work') || lower.includes('write')) template = TASK_TEMPLATES.work;
+      else if (lower.includes('exercise') || lower.includes('workout')) template = TASK_TEMPLATES.exercise;
+      else if (lower.includes('cook') || lower.includes('food')) template = TASK_TEMPLATES.cook;
+      
+      setSteps(template);
+      setLoading(false);
+      onBreakdown?.();
+    }, 800);
+  };
+
+  const completeStep = (idx) => {
+    const newSteps = steps.map((s, i) => i === idx ? { ...s, done: !s.done } : s);
+    setSteps(newSteps);
+  };
+
   return (
-    <div style={{display:'flex',gap:6,justifyContent:'center',marginBottom:12}}>
-      {activities.map(act => (
-        <div key={act} style={{
-          width:32,height:32,borderRadius:'50%',
-          background:completed.includes(act)?accent+'30':'rgba(255,255,255,0.05)',
-          border:'2px solid '+(completed.includes(act)?accent:'rgba(255,255,255,0.1)'),
-          display:'flex',alignItems:'center',justifyContent:'center',
-          fontSize:14,transition:'all 0.3s ease',
-        }}>
-          {act==='eat'?'🍜':act==='break'?'🌬️':act==='tidy'?'🧹':'🧘'}
+    <div style={{marginBottom:12,padding:12,background:'rgba(255,255,255,0.03)',borderRadius:12,border:'1px solid rgba(255,255,255,0.08)'}}>
+      <div style={{fontSize:11,color:'rgba(255,255,255,0.5)',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+        <span>✨</span> Task Breakdown AI
+      </div>
+      
+      <div style={{display:'flex',gap:8,marginBottom:steps.length?12:0}}>
+        <input 
+          type="text" 
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleBreakdown()}
+          placeholder="What are you avoiding?"
+          style={{
+            flex:1,padding:'8px 12px',borderRadius:8,border:'1px solid rgba(255,255,255,0.1)',
+            background:'rgba(0,0,0,0.2)',color:'#fff',fontSize:12,outline:'none',
+          }}
+        />
+        <button 
+          onClick={handleBreakdown}
+          disabled={loading}
+          style={{
+            padding:'8px 16px',borderRadius:8,border:'none',
+            background:loading?'rgba(255,255,255,0.1)':accent,color:loading?'rgba(255,255,255,0.3)':'#000',
+            fontSize:12,fontWeight:600,
+          }}
+        >
+          {loading?'...':'Break it down'}
+        </button>
+      </div>
+
+      {steps.length > 0 && (
+        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          {steps.map((step, idx) => (
+            <div 
+              key={idx}
+              onClick={() => completeStep(idx)}
+              style={{
+                display:'flex',alignItems:'center',gap:8,padding:'8px 12px',
+                background:step.done?'rgba(74,222,128,0.1)':'rgba(255,255,255,0.05)',
+                borderRadius:8,cursor:'pointer',transition:'all 0.2s',
+                border:'1px solid '+(step.done?'rgba(74,222,128,0.3)':'transparent'),
+              }}
+            >
+              <div style={{
+                width:16,height:16,borderRadius:'50%',
+                border:'2px solid '+(step.done?accent:'rgba(255,255,255,0.3)'),
+                background:step.done?accent:'transparent',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                fontSize:10,color:'#000',
+              }}>
+                {step.done && '✓'}
+              </div>
+              <span style={{
+                fontSize:12,
+                textDecoration:step.done?'line-through':'none',
+                color:step.done?'rgba(255,255,255,0.4)':'rgba(255,255,255,0.8)',
+              }}>
+                {step.text || step}
+              </span>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }
 
-/* ───────────────────────── UPCOMING ALERT ───────────────────────── */
-function UpcomingAlert({ nextActivity, timeUntil, accent }) {
-  if (!nextActivity) return null;
-  const mins = Math.ceil(timeUntil / 60);
+// --- VIRTUAL GARDEN ---
+function VirtualGarden({ streak, accent, onEvolution }) {
+  const plants = [
+    { day: 1, emoji: '🌱', name: 'Sprout', size: 20 },
+    { day: 3, emoji: '🌿', name: 'Seedling', size: 28 },
+    { day: 7, emoji: '🌷', name: 'Bloomer', size: 32 },
+    { day: 14, emoji: '🌻', name: 'Sunflower', size: 36 },
+    { day: 30, emoji: '🌳', name: 'Mighty Oak', size: 44 },
+  ];
+  
+  const currentPlant = plants.slice().reverse().find(p => streak >= p.day) || plants[0];
+  const nextPlant = plants.find(p => p.day > streak);
+  const progress = nextPlant ? ((streak % nextPlant.day) / nextPlant.day) * 100 : 100;
+
+  useEffect(() => {
+    const evoLevel = plants.findIndex(p => p.day === currentPlant.day);
+    onEvolution?.(evoLevel);
+  }, [streak]);
+
   return (
     <div style={{
-      padding:'8px 12px',borderRadius:10,
-      background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',
-      marginBottom:12,textAlign:'center',
+      padding:'12px',borderRadius:14,
+      background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',
+      marginBottom:12,
     }}>
-      <div style={{fontSize:10,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1}}>Next up</div>
-      <div style={{fontSize:12,color:accent,fontWeight:600}}>
-        {nextActivity.icon} {nextActivity.label} in {mins}m
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+        <div style={{fontSize:10,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1}}>Your Garden</div>
+        <div style={{fontSize:11,color:accent}}>{streak} day{streak!==1?'s':''} 🌱</div>
+      </div>
+      
+      <div style={{display:'flex',alignItems:'flex-end',justifyContent:'center',gap:8,height:50,marginBottom:8}}>
+        {plants.map((plant, i) => {
+          const isGrown = streak >= plant.day;
+          const isCurrent = currentPlant.day === plant.day;
+          return (
+            <div key={plant.day} style={{
+              fontSize:isCurrent?plant.size:16,
+              opacity:isGrown?1:0.3,
+              filter:isGrown?'none':'grayscale(100%)',
+              animation:isGrown?'swayPlant 3s ease-in-out infinite':'none',
+              transition:'all 0.5s ease',
+              position:'relative',
+            }}>
+              {plant.emoji}
+              {isCurrent && (
+                <div style={{
+                  position:'absolute',top:-4,right:-4,
+                  width:8,height:8,background:accent,borderRadius:'50%',
+                  animation:'sparkle 1s ease-in-out infinite',
+                }} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      {nextPlant && (
+        <div style={{width:'100%',height:4,background:'rgba(255,255,255,0.1)',borderRadius:2,overflow:'hidden'}}>
+          <div style={{
+            width:progress+'%',height:'100%',
+            background:'linear-gradient(90deg,'+accent+','+accent+'88)',
+            borderRadius:2,transition:'width 0.5s ease',
+          }} />
+        </div>
+      )}
+      
+      <div style={{textAlign:'center',fontSize:11,color:'rgba(255,255,255,0.5)',marginTop:6}}>
+        {currentPlant.name} {nextPlant && `→ ${nextPlant.name} in ${nextPlant.day - streak} days`}
       </div>
     </div>
   );
 }
 
-/* ───────────────────────── APP ───────────────────────── */
-function App() {
-  const [mood,       setMood]       = useState('focus');
-  const [pose,       setPose]       = useState('idle');
-  const [running,    setRunning]    = useState(false);
-  const [elapsed,    setElapsed]    = useState(0);
-  const [duration,   setDuration]   = useState(25);
-  const [sessions,   setSessions]   = useState(0);
-  const [notif,      setNotif]      = useState({ text:'', id:0, urgent:false });
-  const [msgIdx,     setMsgIdx]     = useState(0);
+// --- BADGES ---
+function Badges({ unlocked }) {
+  const [showAll, setShowAll] = useState(false);
   
-  // Schedule state
-  const [scheduleEnabled, setScheduleEnabled] = useState(true);
-  const [lastActivity,    setLastActivity]    = useState({});
-  const [completedToday,  setCompletedToday]  = useState([]);
-  const [nextAlert,       setNextAlert]       = useState(null);
-  const [timeUntilNext,   setTimeUntilNext]   = useState(0);
+  return (
+    <div style={{marginBottom:12}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+        <div style={{fontSize:10,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1}}>Achievements</div>
+        <button onClick={() => setShowAll(!showAll)} style={{fontSize:10,color:'rgba(255,255,255,0.5)',background:'none',border:'none'}}>
+          {showAll?'Hide':'Show all'}
+        </button>
+      </div>
+      
+      <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+        {BADGES.map(badge => {
+          const isUnlocked = unlocked.includes(badge.id);
+          if (!showAll && !isUnlocked) return null;
+          
+          return (
+            <div key={badge.id} style={{
+              padding:'6px 10px',borderRadius:20,
+              background:isUnlocked?'rgba(255,215,0,0.1)':'rgba(255,255,255,0.03)',
+              border:'1px solid '+(isUnlocked?'rgba(255,215,0,0.3)':'rgba(255,255,255,0.08)'),
+              display:'flex',alignItems:'center',gap:6,opacity:isUnlocked?1:0.5,
+            }} title={badge.desc}>
+              <span style={{fontSize:14}}>{badge.icon}</span>
+              <span style={{fontSize:10,color:isUnlocked?'#ffd700':'rgba(255,255,255,0.4)'}}>{badge.name}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-  const md      = MOODS.find(function(m){ return m.id === mood; }) || MOODS[0];
-  const accent  = md.accent;
-  const total   = duration * 60;
-  const isDone  = elapsed >= total && total > 0;
+// --- FORTUNE COOKIE ---
+function FortuneCookie({ onOpen, accent }) {
+  const [fortune, setFortune] = useState(null);
+  const [opened, setOpened] = useState(false);
+
+  const open = () => {
+    if (opened) return;
+    const f = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+    setFortune(f);
+    setOpened(true);
+    onOpen?.();
+    setTimeout(() => setOpened(false), 5000);
+  };
+
+  return (
+    <div style={{
+      position:'relative',padding:12,background:'rgba(255,255,255,0.03)',borderRadius:12,
+      border:'1px solid rgba(255,255,255,0.08)',marginBottom:12,textAlign:'center',
+    }}>
+      {!opened ? (
+        <button onClick={open} style={{
+          background:'none',border:'none',fontSize:24,cursor:'pointer',
+          animation:'bounce 2s ease-in-out infinite',
+        }}>
+          🥠
+        </button>
+      ) : (
+        <div style={{animation:'fadein 0.5s ease'}}>
+          <div style={{fontSize:12,color:accent,marginBottom:4}}>{fortune}</div>
+          <div style={{fontSize:10,color:'rgba(255,255,255,0.4)'}}>— Mochi's Wisdom</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- RESET MODE ---
+function ResetMode({ accent }) {
+  const [active, setActive] = useState(false);
+  const [breath, setBreath] = useState('Inhale...');
+  
+  useEffect(() => {
+    if (!active) return;
+    const interval = setInterval(() => {
+      setBreath(b => b === 'Inhale...' ? 'Hold...' : b === 'Hold...' ? 'Exhale...' : 'Inhale...');
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [active]);
+
+  if (active) {
+    return (
+      <div style={{
+        position:'fixed',inset:0,background:'rgba(0,0,0,0.95)',zIndex:100,
+        display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
+        animation:'fadein 0.5s ease',
+      }}>
+        <div style={{fontSize:80,marginBottom:30,animation:'breathe 4s ease-in-out infinite'}}>🌸</div>
+        <div style={{fontSize:24,color:accent,marginBottom:10,fontWeight:600}}>{breath}</div>
+        <div style={{fontSize:14,color:'rgba(255,255,255,0.5)',marginBottom:30}}>You're safe. You're capable. Breathe.</div>
+        <button onClick={() => setActive(false)} style={{
+          padding:'12px 24px',borderRadius:20,border:'none',
+          background:accent,color:'#000',fontWeight:600,cursor:'pointer',
+        }}>
+          I'm ready to continue
+        </button>
+      </div>
+    );
+  }
+  
+  return (
+    <button onClick={() => setActive(true)}
+      style={{width:'100%',padding:'10px 0',borderRadius:8,border:'1px solid rgba(220,38,38,0.3)',background:'rgba(220,38,38,0.1)',color:'#f87171',fontSize:11,fontWeight:600,marginBottom:10}}>
+      🆘 Feeling overwhelmed? Take a breath
+    </button>
+  );
+}
+
+// --- FOCUS DASHBOARD ---
+function FocusDashboard({ tasks, setTasks, timer, setTimer, isRunning, setIsRunning, accent }) {
+  const [newTask, setNewTask] = useState('');
+  const [showDashboard, setShowDashboard] = useState(false);
+
+  const addTask = () => {
+    if (!newTask.trim()) return;
+    setTasks([...tasks, { id: Date.now(), text: newTask, done: false, color: accent }]);
+    setNewTask('');
+  };
+
+  const toggleTask = (id) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  };
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter(t => t.id !== id));
+  };
+
+  if (!showDashboard) {
+    return (
+      <button onClick={() => setShowDashboard(true)} style={{
+        position:'fixed',bottom:20,right:20,width:50,height:50,borderRadius:'50%',
+        background:accent,border:'none',fontSize:20,zIndex:50,
+        boxShadow:'0 4px 12px rgba(0,0,0,0.3)',cursor:'pointer',
+      }}>
+        📋
+      </button>
+    );
+  }
+
+  return (
+    <div style={{
+      position:'fixed',top:0,right:0,width:300,height:'100%',
+      background:'rgba(15,15,31,0.98)',backdropFilter:'blur(10px)',
+      zIndex:100,padding:20,animation:'slideIn 0.3s ease',
+      display:'flex',flexDirection:'column',gap:12,
+      borderLeft:'1px solid rgba(255,255,255,0.1)',
+    }}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div style={{fontSize:16,fontWeight:700,color:'#fff'}}>Focus Space</div>
+        <button onClick={() => setShowDashboard(false)} style={{background:'none',border:'none',fontSize:20,color:'rgba(255,255,255,0.5)'}}>✕</button>
+      </div>
+
+      {/* Quick Timer */}
+      <div style={{padding:16,background:'rgba(255,255,255,0.05)',borderRadius:12}}>
+        <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:8}}>Quick Timer</div>
+        <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+          {[5,15,25,45].map(m => (
+            <button key={m} onClick={() => {setTimer(m*60); setIsRunning(true);}}
+              style={{
+                padding:'8px 12px',borderRadius:8,border:'none',
+                background:timer===m*60?accent:'rgba(255,255,255,0.1)',
+                color:timer===m*60?'#000':'#fff',fontSize:12,fontWeight:600,
+              }}>
+              {m}m
+            </button>
+          ))}
+        </div>
+        {isRunning && (
+          <div style={{textAlign:'center',marginTop:12,fontSize:24,color:accent,fontWeight:700}}>
+            {String(Math.floor(timer/60)).padStart(2,'0')}:{String(timer%60).padStart(2,'0')}
+          </div>
+        )}
+      </div>
+
+      {/* Tasks */}
+      <div style={{flex:1,overflowY:'auto'}}>
+        <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:8}}>Tasks</div>
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          <input 
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && addTask()}
+            placeholder="Add a task..."
+            style={{
+              flex:1,padding:'10px',borderRadius:8,border:'1px solid rgba(255,255,255,0.1)',
+              background:'rgba(0,0,0,0.3)',color:'#fff',fontSize:12,
+            }}
+          />
+          <button onClick={addTask} style={{
+            padding:'10px 16px',borderRadius:8,border:'none',
+            background:accent,color:'#000',fontWeight:600,
+          }}>+</button>
+        </div>
+
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {tasks.map(task => (
+            <div key={task.id} style={{
+              display:'flex',alignItems:'center',gap:8,padding:12,
+              background:task.done?'rgba(74,222,128,0.1)':'rgba(255,255,255,0.05)',
+              borderRadius:8,borderLeft:'3px solid '+(task.done?'#4ade80':task.color),
+            }}>
+              <button onClick={() => toggleTask(task.id)} style={{
+                width:20,height:20,borderRadius:'50%',
+                border:'2px solid '+(task.done?'#4ade80':'rgba(255,255,255,0.3)'),
+                background:task.done?'#4ade80':'transparent',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                fontSize:12,color:'#000',border:'none',
+              }}>
+                {task.done && '✓'}
+              </button>
+              <span style={{
+                flex:1,fontSize:13,
+                textDecoration:task.done?'line-through':'none',
+                color:task.done?'rgba(255,255,255,0.4)':'#fff',
+              }}>{task.text}</span>
+              <button onClick={() => deleteTask(task.id)} style={{
+                background:'none',border:'none',color:'rgba(255,255,255,0.3)',fontSize:16,
+              }}>×</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- MAIN APP ---
+function App() {
+  // Core state
+  const [mood, setMood] = useState('focus');
+  const [pose, setPose] = useState('idle');
+  const [running, setRunning] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [duration, setDuration] = useState(25);
+  const [sessions, setSessions] = useState(0);
+  const [notif, setNotif] = useState({ text:'', id:0, urgent:false });
+  const [msgIdx, setMsgIdx] = useState(0);
+  
+  // Feature state
+  const [season, setSeason] = useState('spring');
+  const [streak, setStreak] = useState(5);
+  const [todoOpen, setTodoOpen] = useState(false);
+  const [todoInput, setTodoInput] = useState('');
+  const [todos, setTodos] = useState(function(){
+    try { return JSON.parse(localStorage.getItem('bd-todos') || '[]'); } catch { return []; }
+  });
+  const [charEditorOpen, setCharEditorOpen] = useState(false);
+  const [charColors, setCharColors] = useState(function(){
+    try { return JSON.parse(localStorage.getItem('bd-char') || 'null'); } catch { return null; }
+  });
+  const [mochiEvolution, setMochiEvolution] = useState(0);
+  const [unlockedBadges, setUnlockedBadges] = useState(['first_focus']);
+  const [tasks, setTasks] = useState([]);
+  const [dashTimer, setDashTimer] = useState(0);
+  const [dashRunning, setDashRunning] = useState(false);
+  
+  // First visit
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
+  const [hasWaved, setHasWaved] = useState(false);
+
+  const md = MOODS.find(m => m.id === mood) || MOODS[0];
+  const accent = md.accent;
+  const total = duration * 60;
+  const isDone = elapsed >= total && total > 0;
 
   const timerRef = useRef(null);
-  const poseRef  = useRef(null);
-  const msgRef   = useRef(null);
-  const scheduleRef = useRef(null);
-  const alertRef = useRef(null);
+  const poseRef = useRef(null);
+  const msgRef = useRef(null);
+  const dashTimerRef = useRef(null);
 
-  // Audio context for cat meows (placeholder)
-  const playMeow = useCallback((urgent=false) => {
-    // Placeholder: In production, load actual audio files
-    console.log(urgent ? AUDIO_CUES.meowUrgent : AUDIO_CUES.meow);
-    // Visual feedback since we can't play audio
-    showNotif(urgent ? '🐱 Mochi: Meow! Meow!' : '🐱 Mochi: Meow!', urgent);
-  }, []);
+  // Hello wave
+  useEffect(() => {
+    if (isFirstVisit && !hasWaved) {
+      console.log('🐱 Meow! Welcome back Yulia!');
+      setPose('wave');
+      setHasWaved(true);
+      setTimeout(() => {
+        setPose('idle');
+        setIsFirstVisit(false);
+      }, 3000);
+    }
+  }, [isFirstVisit, hasWaved]);
+  
+  // Persist todos & char colors
+  useEffect(function(){ if (typeof window !== 'undefined') localStorage.setItem('bd-todos', JSON.stringify(todos)); }, [todos]);
+  useEffect(function(){ if (typeof window !== 'undefined' && charColors) localStorage.setItem('bd-char', JSON.stringify(charColors)); }, [charColors]);
 
-  /* focus timer */
-  useEffect(function(){
+  // Main timer
+  useEffect(() => {
     if (running) {
-      timerRef.current = setInterval(function(){
-        setElapsed(function(e){
+      timerRef.current = setInterval(() => {
+        setElapsed(e => {
           if (e+1 >= total) {
             clearInterval(timerRef.current);
             setRunning(false);
-            setSessions(function(s){ return s+1; });
-            triggerPose('dance', 28, '🎉 Session done! You crushed it, dance it out!');
+            setSessions(s => s+1);
+            setStreak(s => s + 0.2);
+            triggerPose('dance', 28, '🎉 Session done! You crushed it!');
+            
+            // Unlock badges
+            if (sessions === 0) unlockBadge('first_focus');
+            if (streak + 0.2 >= 3) unlockBadge('streak_3');
+            if (duration >= 60) unlockBadge('deep_work');
+            
             return total;
           }
           return e+1;
         });
       }, 1000);
-    } else {
-      clearInterval(timerRef.current);
     }
-    return function(){ clearInterval(timerRef.current); };
-  }, [running, total]);
+    return () => clearInterval(timerRef.current);
+  }, [running, total, sessions, streak, duration]);
 
-  /* rotate msg every 28s */
-  useEffect(function(){
-    msgRef.current = setInterval(function(){ setMsgIdx(function(i){ return i+1; }); }, 28000);
-    return function(){ clearInterval(msgRef.current); };
+  // Dashboard timer
+  useEffect(() => {
+    if (dashRunning && dashTimer > 0) {
+      dashTimerRef.current = setInterval(() => {
+        setDashTimer(t => {
+          if (t <= 1) {
+            setDashRunning(false);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(dashTimerRef.current);
+  }, [dashRunning, dashTimer]);
+
+  // Rotate messages
+  useEffect(() => {
+    msgRef.current = setInterval(() => setMsgIdx(i => i+1), 28000);
+    return () => clearInterval(msgRef.current);
   }, []);
 
-  /* Schedule checker - runs every minute */
-  useEffect(function(){
-    if (!scheduleEnabled) return;
-    
-    const checkSchedule = () => {
-      const now = new Date();
-      const currentTime = now.getHours() * 60 + now.getMinutes();
-      
-      let nextAct = null;
-      let minTime = Infinity;
-      
-      SCHEDULE_RULES.forEach(rule => {
-        let triggerTime;
-        
-        if (rule.time) {
-          // Fixed time (like sleep at 21:30)
-          const [h, m] = rule.time.split(':').map(Number);
-          triggerTime = h * 60 + m;
-          if (triggerTime < currentTime) triggerTime += 24 * 60; // Tomorrow
-        } else {
-          // Interval-based
-          const last = lastActivity[rule.id] || 0;
-          triggerTime = last + (rule.interval / 60);
-          if (triggerTime < currentTime) triggerTime = currentTime + 1;
-        }
-        
-        const timeUntil = (triggerTime - currentTime) * 60; // in seconds
-        
-        if (timeUntil < minTime && timeUntil > 0) {
-          minTime = timeUntil;
-          nextAct = { ...rule, timeUntil };
-        }
-        
-        // Trigger if due (within last minute)
-        if (timeUntil <= 60 && timeUntil > 0 && !completedToday.includes(rule.id)) {
-          triggerScheduledActivity(rule);
-        }
-      });
-      
-      setNextAlert(nextAct);
-      setTimeUntilNext(minTime);
-    };
-    
-    checkSchedule();
-    scheduleRef.current = setInterval(checkSchedule, 60000); // Check every minute
-    
-    return () => clearInterval(scheduleRef.current);
-  }, [scheduleEnabled, lastActivity, completedToday]);
+  // Season detection
+  useEffect(() => {
+    const month = new Date().getMonth();
+    if (month < 2 || month === 11) setSeason('winter');
+    else if (month < 5) setSeason('spring');
+    else if (month < 8) setSeason('summer');
+    else setSeason('fall');
+  }, []);
 
-  function triggerScheduledActivity(rule) {
-    playMeow(rule.priority >= 2);
-    
-    const messages = {
-      break: ['Time for fresh air! 🌬️', 'Step outside with me?', 'Your brain needs oxygen!'],
-      eat: ['Yulia, it\'s eating time! 🍜', 'Fuel up now, okay?', 'Don\'t skip meals!'],
-      tidy: ['Quick 10-min tidy? 🧹', 'Clear space = clear mind', 'Let\'s reset your space'],
-      meditate: ['Breathe with me? 🧘', '5 minutes of calm', 'Reset your nervous system'],
-      sleep: ['Time to wind down 🌙', 'Your brain needs rest', 'Let\'s prepare for sleep'],
-    };
-    
-    const msg = messages[rule.id][Math.floor(Math.random() * messages[rule.id].length)];
-    triggerPose(rule.id, rule.duration, msg);
-    
-    setLastActivity(prev => ({ ...prev, [rule.id]: Date.now() / 1000 / 60 }));
-    setCompletedToday(prev => [...prev, rule.id]);
-  }
+  const unlockBadge = (id) => {
+    if (!unlockedBadges.includes(id)) {
+      setUnlockedBadges([...unlockedBadges, id]);
+      showNotif(`🏆 Badge unlocked: ${BADGES.find(b => b.id === id)?.name}!`, false);
+    }
+  };
 
-  function showNotif(text, urgent=false) {
-    setNotif(function(n){ return { text:text, id:n.id+1, urgent }; });
-  }
+  const showNotif = (text, urgent=false) => {
+    setNotif(n => ({ text, id: n.id+1, urgent }));
+  };
 
-  function triggerPose(p, sec, msg) {
+  const triggerPose = (p, sec, msg) => {
     clearTimeout(poseRef.current);
     setPose(p);
     showNotif(msg, p==='sleep' || p==='eat');
-    poseRef.current = setTimeout(function(){
-      setPose(function(){ return running ? 'work' : 'idle'; });
+    poseRef.current = setTimeout(() => {
+      setPose(running ? 'work' : 'idle');
     }, sec * 1000);
+  
+  // Auto-change music based on pose
+  const trackMap = {
+    'work':'focus','idle':'focus','dance':'dance','eat':'chill',
+    'feed':'chill','sleep':'sleep','stretch':'meditate','tidy':'tidy',
+    'meditate':'meditate','wave':'focus','openwindow':'chill','trick':'dance'
+  };
+  if (trackMap[p] && window.changeMusicTrack) window.changeMusicTrack(trackMap[p]);
+};
+
+  function addTodo() {
+    var t = todoInput.trim();
+    if (!t) return;
+    setTodos(function(p){ return [{ id: Date.now(), text: t, done: false }].concat(p); });
+    setTodoInput('');
   }
+  function removeTodo(id) {
+    setTodos(function(p){ return p.filter(function(t){ return t.id !== id; }); });
+  }
+  function toggleTodo(id) {
+    setTodos(function(p){ return p.map(function(t){ return t.id === id ? Object.assign({}, t, { done: !t.done }) : t; }); });
+  }
+  const startFocus = () => { setElapsed(0); setRunning(true); setPose('work'); showNotif('🧠 Focus started!'); };
+  const pauseFocus = () => { setRunning(false); setPose('idle'); };
+  const resumeFocus = () => { setRunning(true); setPose('work'); };
+  const resetFocus = () => { setRunning(false); setElapsed(0); setPose('idle'); };
+  
+  const doDance = () => triggerPose('dance', 15, '💃 Dance break!');
+  const doEat = () => { triggerPose('eat', 14, '🍜 Eating time!'); unlockBadge('tidy_titan'); };
+  const doFeed = () => { triggerPose('feed', 12, '🐱 Mochi is so happy!'); unlockBadge('mochi_friend'); };
+  const doTidy = () => triggerPose('tidy', 10, '🧹 Tidy time!');
+  const doMeditate = () => triggerPose('meditate', 5, '🧘 Breathe...');
+  const doSleep = () => triggerPose('sleep', 30, '🌙 Wind down...');
+  const doOpenWindow = () => triggerPose('openwindow', 8, '🪟 Fresh air!');
+  const doTrick = () => triggerPose('trick', 5, '🐱 Mochi does a flip!');
 
-  function startFocus() { setElapsed(0); setRunning(true); setPose('work'); showNotif('🧠 Focus started! We\'ve got this!'); }
-  function pauseFocus() { setRunning(false); setPose('idle'); }
-  function resumeFocus(){ setRunning(true); setPose('work'); }
-  function resetFocus() { setRunning(false); setElapsed(0); setPose('idle'); }
-  function doDance()   { triggerPose('dance', 15, '💃 Dance break! Shake it all out!'); }
-  function doEat()     { triggerPose('eat',   14, '🍜 Time to eat — you need fuel!'); }
-  function doFeed()    { triggerPose('feed',  12, '🐱 Feeding Mochi! She\'s so excited!'); }
-  function doStretch() { triggerPose('stretch', 8, '🌬️ Fresh air break! Breathe deep!'); }
-  function doTidy()    { triggerPose('tidy',    10, '🧹 Quick tidy session!'); }
-  function doMeditate(){ triggerPose('meditate', 5, '🧘 Breathe in... breathe out...'); }
-  function doSleep()   { triggerPose('sleep',   30, '🌙 Time to wind down for sleep...'); }
-
-  const msgs   = MSGS[pose] || MSGS.idle;
+  const msgs = MSGS[pose] || MSGS.idle;
   const curMsg = msgs[msgIdx % msgs.length];
-  const isDancing = pose === 'dance';
 
   return (
-    <div style={{
-      width:'100%', minHeight:'100%',
-      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-start',
-      padding:'12px 0 24px',
-      background: md.bg,
-      animation:'fadein 0.5s ease',
-    }}>
+    <div className="scene-container"><div style={{width:'100%',minHeight:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start',padding:'12px 0 24px',background:md.bg,animation:'fadein 0.5s ease'}}>
       <div style={{width:'100%',maxWidth:390,padding:'0 14px',display:'flex',flexDirection:'column',gap:0}}>
 
-        {/* scene */}
+        {/* Scene */}
         <div style={{position:'relative',width:'100%',paddingTop:'59%',borderRadius:'22px 22px 0 0',overflow:'hidden',border:'1px solid rgba(255,255,255,0.07)',borderBottom:'none',boxShadow:'0 -4px 24px rgba(0,0,0,0.5)'}}>
           <div style={{position:'absolute',inset:0}}>
-            <Room mood={mood} pose={pose} accent={accent} />
-            <Girl pose={pose} accent={accent} />
-            <Cat  pose={pose} accent={accent} />
-            <Confetti active={isDancing} accent={accent} />
+            <Room mood={mood} pose={pose} accent={accent} season={season} />
+            <FelixClock mood={mood} />
+            <Girl pose={pose} accent={accent} season={season} />
+            <Cat pose={pose} accent={accent} evolution={mochiEvolution} />
+            <Confetti active={pose === 'dance'} accent={accent} />
             {notif.text && <Notif text={notif.text} accent={accent} id={notif.id} urgent={notif.urgent} />}
           </div>
         </div>
 
-        {/* companion message */}
+        {/* Message */}
         <div style={{padding:'9px 18px 7px',textAlign:'center',fontSize:13,color:accent,opacity:0.88,background:'rgba(0,0,0,0.25)',letterSpacing:0.2,animation:'slideup 0.3s ease'}}>
           {curMsg}
         </div>
 
-        {/* controls */}
+        {/* Controls */}
         <div style={{background:'rgba(255,255,255,0.038)',border:'1px solid rgba(255,255,255,0.07)',borderTop:'1px solid rgba(255,255,255,0.04)',borderRadius:'0 0 22px 22px',padding:'14px 16px 20px',boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
 
-          {/* Daily Progress */}
-          <DailyProgress completed={completedToday} accent={accent} />
+          {/* Fortune Cookie */}
+          <FortuneCookie accent={accent} />
 
-          {/* Upcoming Alert */}
-          {scheduleEnabled && nextAlert && (
-            <UpcomingAlert nextActivity={nextAlert} timeUntil={timeUntilNext} accent={accent} />
-          )}
+          {/* Task Breakdown AI */}
+          <TaskBreakdown accent={accent} onBreakdown={() => unlockBadge('deep_work')} />
 
-          {/* timer + session controls */}
+          {/* Garden */}
+          <VirtualGarden streak={Math.floor(streak)} accent={accent} onEvolution={setMochiEvolution} />
+
+          {/* Badges */}
+          <Badges unlocked={unlockedBadges} />
+
+          {/* Timer */}
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:18,marginBottom:14}}>
             <TimerRing elapsed={elapsed} duration={duration} accent={accent} />
             <div style={{display:'flex',flexDirection:'column',gap:8,flex:1}}>
-              {/* duration picker */}
               {!running && !isDone && (
                 <div style={{display:'flex',gap:5,animation:'slideup 0.3s ease'}}>
-                  {[15,25,45,60].map(function(d){
-                    return (
-                      <button key={d} onClick={function(){ setDuration(d); setElapsed(0); }}
-                        style={{flex:1,padding:'4px 0',borderRadius:8,border:'1px solid',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all 0.18s ease',
-                          borderColor: duration===d ? accent : 'rgba(255,255,255,0.1)',
-                          background:  duration===d ? accent+'20' : 'transparent',
-                          color:       duration===d ? accent : 'rgba(255,255,255,0.3)',
-                        }}>{d}m</button>
-                    );
-                  })}
+                  {[15,25,45,60].map(d => (
+                    <button key={d} onClick={() => {setDuration(d); setElapsed(0);}}
+                      style={{flex:1,padding:'4px 0',borderRadius:8,border:'1px solid',fontSize:11,fontWeight:600,borderColor:duration===d?accent:'rgba(255,255,255,0.1)',background:duration===d?accent+'20':'transparent',color:duration===d?accent:'rgba(255,255,255,0.3)'}}>
+                      {d}m
+                    </button>
+                  ))}
                 </div>
               )}
-              {/* session count */}
               <div style={{fontSize:11,color:'rgba(255,255,255,0.28)',textAlign:'center'}}>
-                {sessions>0 ? '🎯 '+sessions+' session'+(sessions!==1?'s':'')+' done!' : 'Start your first session!'}
+                {sessions>0 ? `🎯 ${sessions} session${sessions!==1?'s':''} done!` : 'Start your first session!'}
               </div>
-              {/* main CTA */}
               {!isDone ? (
-                <button
-                  onClick={running ? pauseFocus : elapsed>0 ? resumeFocus : startFocus}
-                  style={{padding:'10px 0',borderRadius:12,border:'none',fontSize:13,fontWeight:700,cursor:'pointer',
-                    background:'linear-gradient(135deg,'+accent+','+accent+'88)',
-                    color:'#fff',boxShadow:'0 4px 14px '+accent+'44',transition:'all 0.18s ease',
-                  }}>
-                  {running ? '⏸ Pause' : elapsed>0 ? '▶ Resume' : '▶ Start Focus'}
+                <button onClick={running?pauseFocus:elapsed>0?resumeFocus:startFocus}
+                  style={{padding:'10px 0',borderRadius:12,border:'none',fontSize:13,fontWeight:700,background:'linear-gradient(135deg,'+accent+','+accent+'88)',color:'#fff',boxShadow:'0 4px 14px '+accent+'44'}}>
+                  {running?'⏸ Pause':elapsed>0?'▶ Resume':'▶ Start Focus'}
                 </button>
               ) : (
-                <button onClick={resetFocus}
-                  style={{padding:'10px 0',borderRadius:12,border:'none',fontSize:13,fontWeight:700,cursor:'pointer',
-                    background:'linear-gradient(135deg,'+accent+','+accent+'88)',color:'#fff',
-                  }}>✨ New Session</button>
+                <button onClick={resetFocus} style={{padding:'10px 0',borderRadius:12,border:'none',fontSize:13,fontWeight:700,background:'linear-gradient(135deg,'+accent+','+accent+'88)',color:'#fff'}}>
+                  ✨ New Session
+                </button>
               )}
               {elapsed>0 && !isDone && (
-                <button onClick={resetFocus}
-                  style={{padding:4,border:'none',background:'none',color:'rgba(255,255,255,0.22)',fontSize:11,cursor:'pointer'}}>
-                  ↺ reset
-                </button>
+                <button onClick={resetFocus} style={{padding:4,border:'none',background:'none',color:'rgba(255,255,255,0.22)',fontSize:11}}>↺ reset</button>
               )}
             </div>
           </div>
 
-          {/* action buttons - reorganized */}
+          {/* Reset */}
+          <ResetMode accent={accent} />
+
+          {/* Actions */}
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:13}}>
             {[
               {label:'💃 Dance', fn:doDance},
-              {label:'🌬️ Fresh Air', fn:doStretch},
+              {label:'🪟 Window', fn:doOpenWindow},
               {label:'🍜 Eat', fn:doEat},
-              {label:'🐱 Feed Mochi', fn:doFeed},
-              {label:'🧹 Tidy', fn:doTidy},
+              {label:'🐱 Feed', fn:doFeed},
+              {label:mochiEvolution>=2?'🎪 Trick':'🧹 Tidy', fn:mochiEvolution>=2?doTrick:doTidy},
               {label:'🧘 Breathe', fn:doMeditate},
-            ].map(function(btn){
-              return (
-                <button key={btn.label} onClick={btn.fn}
-                  style={{padding:'9px 4px',borderRadius:11,border:'1px solid rgba(255,255,255,0.09)',background:'rgba(255,255,255,0.04)',color:'rgba(255,255,255,0.6)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all 0.2s ease',
-                    lineHeight:1.3,
-                  }}>
-                  {btn.label}
-                </button>
-              );
-            })}
+            ].map(btn => (
+              <button key={btn.label} onClick={btn.fn}
+                style={{padding:'9px 4px',borderRadius:11,border:'1px solid rgba(255,255,255,0.09)',background:'rgba(255,255,255,0.04)',color:'rgba(255,255,255,0.6)',fontSize:11,fontWeight:600,lineHeight:1.3}}>
+                {btn.label}
+              </button>
+            ))}
           </div>
 
-          {/* Sleep button - prominent */}
-          <button onClick={doSleep}
-            style={{width:'100%',padding:'12px 0',borderRadius:12,border:'1px solid rgba(99,102,241,0.3)',background:'rgba(99,102,241,0.1)',color:'#818cf8',fontSize:13,fontWeight:700,cursor:'pointer',marginBottom:13,transition:'all 0.2s ease'}}>
+          {/* Sleep */}
+          <button onClick={doSleep} style={{width:'100%',padding:'12px 0',borderRadius:12,border:'1px solid rgba(99,102,241,0.3)',background:'rgba(99,102,241,0.1)',color:'#818cf8',fontSize:13,fontWeight:700,marginBottom:13}}>
             🌙 Wind Down for Sleep
           </button>
 
-          {/* Schedule toggle */}
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 12px',background:'rgba(255,255,255,0.03)',borderRadius:10,marginBottom:13}}>
-            <div style={{fontSize:12,color:'rgba(255,255,255,0.6)'}}>
-              🔔 Auto-reminders {scheduleEnabled?'ON':'OFF'}
+          {/* Mood */}
+          <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',paddingTop:11}}>
+            <div style={{fontSize:9,color:'rgba(255,255,255,0.22)',textTransform:'uppercase',letterSpacing:2,marginBottom:7,textAlign:'center'}}>Vibe & Season</div>
+            <div style={{display:'flex',gap:5,marginBottom:8}}>
+              {MOODS.map(m => (
+                <button key={m.id} onClick={() => { setMood(m.id); if (window.changeMusicTrack) window.changeMusicTrack(m.id); }}
+                  style={{flex:1,padding:'7px 3px',borderRadius:10,border:'1px solid',fontSize:10,fontWeight:600,borderColor:mood===m.id?m.accent:'rgba(255,255,255,0.07)',background:mood===m.id?m.accent+'18':'rgba(255,255,255,0.02)',color:mood===m.id?m.accent:'rgba(255,255,255,0.28)'}}>
+                  {m.label}
+                </button>
+              ))}
             </div>
-            <button onClick={() => setScheduleEnabled(!scheduleEnabled)}
-              style={{padding:'4px 12px',borderRadius:20,border:'none',background:scheduleEnabled?accent:'rgba(255,255,255,0.1)',color:scheduleEnabled?'#000':'rgba(255,255,255,0.5)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>
-              {scheduleEnabled?'ON':'OFF'}
+            <div style={{textAlign:'center',fontSize:11,color:'rgba(255,255,255,0.25)'}}>
+              {md.desc} • {SEASONS[season].name} {SEASONS[season].particles}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div style={{display:'flex',gap:4,marginTop:8,marginBottom:6,flexWrap:'wrap'}}>
+            <button onClick={function(){ setTodoOpen(true); }}
+              style={{flex:1,padding:'6px 0',borderRadius:10,border:'1px solid '+md.accent+'44',background:md.accent+'15',color:md.accent,fontSize:10,fontWeight:700,cursor:'pointer',textAlign:'center'}}>
+              📝 To-dos
+            </button>
+            <button onClick={function(){ setCharEditorOpen(true); }}
+              style={{flex:1,padding:'6px 0',borderRadius:10,border:'1px solid '+md.accent+'44',background:md.accent+'15',color:md.accent,fontSize:10,fontWeight:700,cursor:'pointer',textAlign:'center'}}>
+              🎨 Customize
             </button>
           </div>
-
-          {/* mood */}
-          <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',paddingTop:11}}>
-            <div style={{fontSize:9,textTransform:'uppercase',letterSpacing:2,color:'rgba(255,255,255,0.22)',marginBottom:7,textAlign:'center'}}>vibe & music</div>
-            <div style={{display:'flex',gap:5}}>
-              {MOODS.map(function(m){
-                return (
-                  <button key={m.id} onClick={function(){ setMood(m.id); }}
-                    style={{flex:1,padding:'7px 3px',borderRadius:10,border:'1px solid',fontSize:10,fontWeight:600,cursor:'pointer',transition:'all 0.2s ease',textAlign:'center',
-                      borderColor: mood===m.id ? m.accent : 'rgba(255,255,255,0.07)',
-                      background:  mood===m.id ? m.accent+'18' : 'rgba(255,255,255,0.02)',
-                      color:       mood===m.id ? m.accent : 'rgba(255,255,255,0.28)',
-                    }}>
-                    {m.label}
-                  </button>
-                );
-              })}
+          {/* Music + Ko-fi */}
+          <div style={{marginTop:6,padding:'8px 10px',background:'rgba(0,0,0,0.2)',borderRadius:10}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+              <span style={{fontSize:10,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1}}>🎵 Music</span>
+              <a href="https://ko-fi.com/creativefactorystudio" target="_blank" rel="noopener noreferrer"
+                style={{display:'inline-flex',alignItems:'center',gap:3,padding:'3px 8px',borderRadius:10,background:'#13C3FF',color:'#fff',fontWeight:600,fontSize:9,textDecoration:'none'}}>
+                ☕ Ko-fi
+              </a>
             </div>
-            <div style={{textAlign:'center',fontSize:11,color:'rgba(255,255,255,0.25)',marginTop:7}}>
-              {md.desc} {md.music && `• ${md.music} vibes`}
-            </div>
-          </div>
-
-          {/* Music placeholder */}
-          <div style={{marginTop:12,padding:'10px',background:'rgba(0,0,0,0.2)',borderRadius:10,textAlign:'center'}}>
-            <div style={{fontSize:10,color:'rgba(255,255,255,0.3)',marginBottom:4}}>🎵 Music Integration</div>
-            <div style={{fontSize:11,color:'rgba(255,255,255,0.5)'}}>
-              Connect Spotify/YouTube for {md.music} playlist
-            </div>
+            <div style={{fontSize:10,color:'rgba(255,255,255,0.4)'}}>{md.music} · {md.desc}</div>
           </div>
         </div>
+      </div></div>
 
-      </div>
+      {/* Todo modal */}
+        {todoOpen && (
+          <div onClick={function(){ setTodoOpen(false); }}
+            style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.72)',backdropFilter:'blur(6px)',zIndex:60,display:'flex',alignItems:'flex-start',justifyContent:'center',padding:'60px 16px 16px',animation:'fadein 0.25s ease'}}>
+            <div onClick={function(e){ e.stopPropagation(); }}
+              style={{width:'100%',maxWidth:420,background:'linear-gradient(180deg,#181028,#0e0a18)',border:'1px solid '+md.accent+'44',borderRadius:18,padding:18,color:'#f1f5f9'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+                <div>
+                  <div style={{fontSize:9,letterSpacing:3,textTransform:'uppercase',color:md.accent,opacity:0.7}}>Focus list</div>
+                  <h2 style={{margin:'2px 0 0',fontSize:18,fontWeight:800}}>To-dos, friend</h2>
+                </div>
+                <button onClick={function(){ setTodoOpen(false); }} aria-label="Close"
+                  style={{width:30,height:30,borderRadius:8,border:'1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',color:'rgba(255,255,255,0.6)',fontSize:16,cursor:'pointer'}}>✕</button>
+              </div>
+              <form onSubmit={function(e){ e.preventDefault(); addTodo(); }} style={{display:'flex',gap:6,marginBottom:12}}>
+                <input value={todoInput} onChange={function(e){ setTodoInput(e.target.value); }} placeholder="Add a task..." autoFocus
+                  style={{flex:1,padding:'10px 12px',borderRadius:10,border:'1px solid '+md.accent+'33',background:'rgba(255,255,255,0.04)',color:'#f1f5f9',fontSize:13,outline:'none'}} />
+                <button type="submit"
+                  style={{padding:'10px 14px',borderRadius:10,border:'none',background:md.accent,color:'#000',fontWeight:700,fontSize:12,cursor:'pointer'}}>+</button>
+              </form>
+              {todos.length === 0 ? (
+                <div style={{textAlign:'center',padding:'30px 0',fontSize:13,color:'rgba(255,255,255,0.25)'}}>
+                  No tasks yet. Add one above ✨
+                </div>
+              ) : todos.map(function(t){
+                return (
+                  <div key={t.id} style={{display:'flex',alignItems:'center',gap:8,padding:'10px 0',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
+                    <input type="checkbox" checked={t.done} onChange={function(){ toggleTodo(t.id); }}
+                      style={{width:18,height:18,accentColor:md.accent,cursor:'pointer',flexShrink:0}} />
+                    <span style={{flex:1,fontSize:13,textDecoration:t.done?'line-through':'none',color:t.done?'rgba(255,255,255,0.3)':'#f1f5f9'}}>{t.text}</span>
+                    <button onClick={function(){ removeTodo(t.id); }} aria-label="Remove"
+                      style={{background:'none',border:'none',color:'rgba(255,255,255,0.25)',fontSize:14,cursor:'pointer',padding:4}}>✕</button>
+                  </div>
+                );
+              })}
+              {todos.length > 0 && (
+                <div style={{textAlign:'center',marginTop:12,fontSize:11,color:'rgba(255,255,255,0.3)'}}>
+                  {todos.filter(function(t){ return !t.done; }).length} left · {todos.filter(function(t){ return t.done; }).length} done
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {/* Character editor modal */}
+        {charEditorOpen && (
+          <div onClick={function(){ setCharEditorOpen(false); }}
+            style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:70,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(6px)'}}>
+            <div onClick={function(e){ e.stopPropagation(); }}
+              style={{width:'100%',maxWidth:380,background:'linear-gradient(180deg,#1a1035,#0e0a18)',border:'1px solid '+md.accent+'33',borderRadius:20,padding:20,color:'#f1f5f9',animation:'fadein 0.25s ease'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+                <h3 style={{fontSize:16,fontWeight:800}}>🎨 Customize</h3>
+                <button onClick={function(){ setCharEditorOpen(false); }}
+                  style={{width:28,height:28,borderRadius:8,border:'1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',color:'rgba(255,255,255,0.6)',fontSize:14,cursor:'pointer'}}>✕</button>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                <div>
+                  <label style={{fontSize:10,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,0.4)',display:'block',marginBottom:4}}>Hair color</label>
+                  <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                    {['#2d1b69','#1a1a2e','#4a1942','#8b4513','#2d2d2d','#c4843b','#d4a373','#111827'].map(function(c){
+                      return <button key={c} onClick={function(){ setCharColors(function(p){ var o=p||{}; o.hair=c; return o; }); }}
+                        style={{width:28,height:28,borderRadius:'50%',background:c,border:'2px solid '+(charColors&&charColors.hair===c?md.accent:'transparent'),cursor:'pointer'}} />;
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <label style={{fontSize:10,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,0.4)',display:'block',marginBottom:4}}>Skin color</label>
+                  <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                    {['#f5c5a3','#f0d5be','#d4a574','#c68b59','#8d5524','#e8c4a0','#ffe0bd','#fce4d6'].map(function(c){
+                      return <button key={c} onClick={function(){ setCharColors(function(p){ var o=p||{}; o.skin=c; return o; }); }}
+                        style={{width:28,height:28,borderRadius:'50%',background:c,border:'2px solid '+(charColors&&charColors.skin===c?md.accent:'transparent'),cursor:'pointer'}} />;
+                    })}
+                  </div>
+                </div>
+                <div style={{fontSize:10,color:'rgba(255,255,255,0.3)',textAlign:'center',marginTop:4}}>
+                  Reload to see changes ✨
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      {/* Focus Dashboard */}
+      <FocusDashboard 
+        tasks={tasks} 
+        setTasks={setTasks} 
+        timer={dashTimer}
+        setTimer={setDashTimer}
+        isRunning={dashRunning}
+        setIsRunning={setDashRunning}
+        accent={accent}
+      />
     </div>
   );
 }
 
-/* register service worker */
+// Service worker
+
+
+// ==========================================
+// ENHANCED FEATURES - Creative Factory Studio
+// ==========================================
+
+// --- WATERMARK GENERATOR ---
+function generateWatermark() {
+  const container = document.getElementById('watermark');
+  if (!container) return;
+  container.innerHTML = '';
+  const text = 'CFSmochi';
+  const spacingX = 200;
+  const spacingY = 140;
+  const cols = Math.ceil(window.innerWidth / spacingX) + 2;
+  const rows = Math.ceil(window.innerHeight / spacingY) + 2;
+  for (let r = -1; r < rows; r++) {
+    for (let c = -1; c < cols; c++) {
+      const el = document.createElement('div');
+      el.className = 'watermark-text';
+      el.textContent = text;
+      el.style.left = (c * spacingX + (r % 2) * (spacingX / 2)) + 'px';
+      el.style.top = (r * spacingY) + 'px';
+      container.appendChild(el);
+    }
+  }
+}
+window.addEventListener('load', generateWatermark);
+window.addEventListener('resize', generateWatermark);
+
+// --- MUSIC SYSTEM (ADHD-Optimized) ---
+const MUSIC_TRACKS = {
+  focus:    { name: 'Deep Focus',      artist: 'Lofi Girl',        embedId: 'jfKfPfyJRdk', desc: 'Binaural beats + lofi for sustained attention' },
+  chill:    { name: 'Ambient Flow',    artist: 'Nature Sounds',    embedId: 's49CT4DTAkw', desc: 'Soft ambient pads for relaxed productivity' },
+  storm:    { name: 'Power Classical', artist: 'Orchestral Focus', embedId: '5qap5aO4i9A', desc: 'Orchestral energy for high-intensity tasks' },
+  cozy:     { name: 'Warm Jazz',       artist: 'Cozy Vibes',       embedId: 'Dx5qFachd3A', desc: 'Warm jazz for evening wind-down' },
+  dance:    { name: 'Movement Break',  artist: 'Upbeat Energy',    embedId: 'MYPVQccHh0g', desc: 'Energetic but structured for dance breaks' },
+  meditate: { name: 'Mindful Breath',  artist: 'Meditation',       embedId: 'pWjmpSDPhkQ', desc: '40Hz binaural beats for mindfulness' },
+  sleep:    { name: 'Deep Sleep',      artist: 'Delta Waves',      embedId: 'rEgBCZi9E9Y', desc: 'Delta wave entrainment for restful sleep' },
+  tidy:     { name: 'Cleaning Motivation', artist: 'Upbeat Lofi',  embedId: 'lTRiuFIWV54', desc: 'Rhythmic beats to make tidying flow' },
+};
+
+let ytPlayer = null;
+let ytReady = false;
+let musicPlaying = false;
+let currentTrackId = 'focus';
+
+function initYouTubeAPI() {
+  if (window.YT && window.YT.Player) {
+    ytReady = true;
+    createMusicPlayer();
+    return;
+  }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+
+window.onYouTubeIframeAPIReady = function() {
+  ytReady = true;
+  createMusicPlayer();
+};
+
+function createMusicPlayer() {
+  if (!ytReady || ytPlayer) return;
+  let playerDiv = document.getElementById('yt-music-player');
+  if (!playerDiv) {
+    playerDiv = document.createElement('div');
+    playerDiv.id = 'yt-music-player';
+    playerDiv.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;';
+    document.body.appendChild(playerDiv);
+  }
+  const track = MUSIC_TRACKS[currentTrackId] || MUSIC_TRACKS.focus;
+  ytPlayer = new window.YT.Player('yt-music-player', {
+    height: '1', width: '1', videoId: track.embedId,
+    playerVars: { autoplay: 0, loop: 1, playlist: track.embedId, controls: 0, modestbranding: 1, rel: 0, fs: 0, iv_load_policy: 3 },
+    events: {
+      onReady: (e) => { e.target.setVolume(30); if (musicPlaying) e.target.playVideo(); },
+      onStateChange: (e) => {
+        if (e.data === window.YT.PlayerState.PLAYING) updateMusicUI(true);
+        else if (e.data === window.YT.PlayerState.PAUSED) updateMusicUI(false);
+      },
+    },
+  });
+}
+
+function updateMusicUI(playing) {
+  musicPlaying = playing;
+  const playerEl = document.getElementById('musicPlayer');
+  const toggleBtn = document.getElementById('musicToggle');
+  if (playerEl) playerEl.classList.toggle('paused', !playing);
+  if (toggleBtn) {
+    toggleBtn.textContent = playing ? '⏸' : '▶';
+    toggleBtn.title = playing ? 'Pause music' : 'Play music';
+    toggleBtn.classList.toggle('active', playing);
+  }
+}
+
+function toggleMusic() {
+  if (!ytPlayer || !ytReady) { initYouTubeAPI(); return; }
+  if (musicPlaying) ytPlayer.pauseVideo();
+  else ytPlayer.playVideo();
+}
+
+function changeMusicTrack(trackId) {
+  currentTrackId = trackId;
+  const track = MUSIC_TRACKS[trackId];
+  if (!track) return;
+  const infoEl = document.getElementById('musicInfo');
+  if (infoEl) { infoEl.textContent = track.name + ' · ' + track.artist; infoEl.title = track.desc; }
+  if (ytPlayer && ytReady) {
+    ytPlayer.loadVideoById({ videoId: track.embedId, startSeconds: 0 });
+    if (!musicPlaying) ytPlayer.pauseVideo();
+  }
+}
+
+// Music toggle button handler
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'musicToggle' || e.target.closest('#musicToggle')) toggleMusic();
+});
+
+initYouTubeAPI();
+
+// --- RESPONSIVE HELPERS ---
+function setViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+window.addEventListener('resize', setViewportHeight);
+window.addEventListener('orientationchange', () => setTimeout(setViewportHeight, 300));
+setViewportHeight();
+
+function setSafeAreas() {
+  const safeTop = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-top)');
+  const safeBottom = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)');
+  if (safeTop && safeTop !== '0px') document.documentElement.style.setProperty('--safe-top', safeTop);
+  if (safeBottom && safeBottom !== '0px') document.documentElement.style.setProperty('--safe-bottom', safeBottom);
+}
+setSafeAreas();
+
+// Touch feedback
+document.addEventListener('touchstart', (e) => {
+  if (e.target.tagName === 'BUTTON' || e.target.closest('button')) e.target.style.transform = 'scale(0.96)';
+}, {passive: true});
+document.addEventListener('touchend', (e) => {
+  if (e.target.tagName === 'BUTTON' || e.target.closest('button')) setTimeout(() => e.target.style.transform = '', 100);
+});
+
+// Prevent zoom on double-tap
+document.addEventListener('touchend', (e) => {
+  if (e.target.tagName === 'BUTTON') { e.preventDefault(); e.target.click(); }
+}, {passive: false});
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ' && e.target.tagName === 'BUTTON') { e.preventDefault(); e.target.click(); }
+});
+
+// Detect touch device
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) document.documentElement.classList.add('touch-device');
+
+// Pointer type detection
+window.addEventListener('pointerdown', (e) => {
+  document.documentElement.classList.toggle('pointer-mouse', e.pointerType === 'mouse');
+  document.documentElement.classList.toggle('pointer-touch', e.pointerType === 'touch');
+});
+
+// PWA Install prompt
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+
+// Online/offline
+window.addEventListener('online', () => console.log('Back online'));
+window.addEventListener('offline', () => console.log('Offline mode'));
+
+// Verify logo loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const logoImg = document.querySelector('.cfs-logo img');
+  if (logoImg) {
+    logoImg.addEventListener('load', () => console.log('CFS Logo loaded'));
+    logoImg.addEventListener('error', () => console.error('CFS Logo failed - check logo.png'));
+  }
+});
+
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(function(err){ console.log('SW:', err); });
+  navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW:', err));
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-</script>
-</body>
+</script></body>
 </html>
-manifest.json (save as manifest.json):
-{
-  "name": "ExecYul · Body Double",
-  "short_name": "ExecYul",
-  "description": "ADHD body doubling companion for Yulia",
-  "start_url": "/",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#1a1025",
-  "theme_color": "#1a1025",
-  "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
-  ]
-}
-sw.js (save as sw.js):
-const CACHE = 'execyul-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json', '/icon.svg'];
-
-self.addEventListener('install', function(e) {
-  e.waitUntil(caches.open(CACHE).then(function(c) { return c.addAll(ASSETS); }));
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', function(e) {
-  e.waitUntil(clients.claim());
-});
-
-self.addEventListener('fetch', function(e) {
-  e.respondWith(
-    caches.match(e.request).then(function(r) { return r || fetch(e.request); })
-  );
-});
-icon.svg (save as icon.svg):
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="38" fill="#1a1025"/>
-  <rect width="192" height="192" rx="38" fill="url(#g)"/>
-  <defs>
-    <radialGradient id="g" cx="40%" cy="30%">
-      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#1a1025"/>
-    </radialGradient>
-  </defs>
-  <text x="96" y="128" font-size="96" text-anchor="middle" font-family="system-ui">🧠</text>
-</svg>
-
