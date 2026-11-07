@@ -6,34 +6,29 @@
 
 ---
 
-## Quick Deploy (PowerShell)
+## Pricing
 
-### Prerequisites
-- [Git for Windows](https://git-scm.com/download/win)
-- PowerShell 5.1+ or PowerShell Core
-- GitHub access to `creativefactoryops-yules/Bodydouble`
+- 14-day free trial, then $9/month via Ko-fi (ko-fi.com/creativefactorystudio).
+- Trial and unlock are stored in the browser only (localStorage) — no account, no server check.
 
-### One-Command Deploy
+---
 
-```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/creativefactoryops-yules/Bodydouble/main/deploy.ps1" -OutFile "deploy.ps1"
-.\deploy.ps1
-```
+## Deploy
 
-### Manual Deploy
+GitHub Pages serves this repo automatically from `main`:
 
 ```powershell
-git clone https://github.com/creativefactoryops-yules/Bodydouble.git
-cd Bodydouble
-# Copy enhanced files here
-copy ..\index.html .
-copy ..\logo.png .
-git add index.html logo.png
-git commit -m "Enhanced: music, logo, watermark, responsive"
+git clone https://github.com/creativefactoryops-yules/mochi.adhd.git
+cd mochi.adhd
+# Edit files, then:
+git add .
+git commit -m "Update"
 git push origin main
 ```
 
-Enable GitHub Pages at: `Settings > Pages > Branch: main`
+Live at: `https://creativefactoryops-yules.github.io/mochi.adhd/`
+
+`index.html` is a pre-built single file (React + transpiled app inlined, no CDN, no build step). The readable JSX source is kept alongside it as `index.html.babel-orig` in the workspace, not in the repo.
 
 ---
 
@@ -79,13 +74,11 @@ Enable GitHub Pages at: `Settings > Pages > Branch: main`
 ## File Structure
 
 ```
-Bodydouble/
-├── index.html     # Main app (enhanced)
-├── logo.png       # CFS logo (400x400 optimized)
-├── deploy.ps1     # PowerShell deploy script
+mochi.adhd/
+├── index.html     # Main app (pre-built single file, React inlined)
 ├── manifest.json  # PWA manifest
 ├── icon.svg       # App icon
-└── sw.js         # Service worker
+└── sw.js          # Service worker (registers cleanly, no caching)
 ```
 
 ---
@@ -114,4 +107,4 @@ Bodydouble/
 
 ---
 
-*Made with love by Creative Factory Studio for Yulia and everyone navigating ADHD.*
+*Made with love by Creative Factory Studio for everyone navigating ADHD.*
