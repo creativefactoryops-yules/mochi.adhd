@@ -1275,7 +1275,7 @@ function VirtualGarden({ streak, accent, onEvolution }) {
     background: "linear-gradient(90deg," + accent + "," + accent + "88)",
     borderRadius: 2,
     transition: "width 0.5s ease"
-  } })), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 6 } }, currentPlant.name, " ", nextPlant && `\u2192 ${nextPlant.name} in ${nextPlant.day - streak} days`));
+  } })), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 6 } }, currentPlant.name, " ", nextPlant && `\u2192 ${nextPlant.name} in ${nextPlant.day - streak} day${nextPlant.day - streak !== 1 ? "s" : ""}`));
 }
 function Badges({ unlocked }) {
   const [showAll, setShowAll] = useState(false);
@@ -1820,6 +1820,7 @@ function App() {
   ), /* @__PURE__ */ React.createElement(
     "button",
     {
+      id: "musicBtn",
       onClick: function() {
         var p = window.__mochiMusic && window.__mochiMusic.toggle();
         if (p) {
@@ -2057,11 +2058,23 @@ function createMusicPlayer() {
     events: {
       onReady: (e) => {
         e.target.setVolume(30);
-        if (musicPlaying) e.target.playVideo();
+        if (musicPlaying) {
+          e.target.playVideo();
+          armMusicWatchdog();
+        }
       },
       onStateChange: (e) => {
-        if (e.data === window.YT.PlayerState.PLAYING) updateMusicUI(true);
-        else if (e.data === window.YT.PlayerState.PAUSED) updateMusicUI(false);
+        if (e.data === window.YT.PlayerState.PLAYING) {
+          musicFailCount = 0;
+          try {
+            clearTimeout(musicWatchdog);
+          } catch (err) {
+          }
+          updateMusicUI(true);
+        } else if (e.data === window.YT.PlayerState.PAUSED) updateMusicUI(false);
+      },
+      onError: (e) => {
+        advanceMusicTrack();
       }
     }
   });
@@ -2076,18 +2089,66 @@ function updateMusicUI(playing) {
     toggleBtn.title = playing ? "Pause music" : "Play music";
     toggleBtn.classList.toggle("active", playing);
   }
+  var musicBtn = document.getElementById("musicBtn");
+  if (musicBtn) musicBtn.textContent = playing ? "\u23F8 Music" : "\u{1F3B5} Music";
 }
 function toggleMusic() {
   if (!ytPlayer || !ytReady) {
     initYouTubeAPI();
     return false;
   }
-  if (musicPlaying) {
+  var st = -1;
+  try {
+    st = ytPlayer.getPlayerState();
+  } catch (e) {
+  }
+  if (st === 1) {
     ytPlayer.pauseVideo();
     return false;
   }
   ytPlayer.playVideo();
+  armMusicWatchdog();
   return true;
+}
+var musicFailCount = 0;
+var musicWatchdog = null;
+function armMusicWatchdog() {
+  try {
+    clearTimeout(musicWatchdog);
+  } catch (e) {
+  }
+  musicWatchdog = setTimeout(function() {
+    try {
+      if (ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() !== 1) advanceMusicTrack();
+    } catch (e) {
+    }
+  }, 12e3);
+}
+function advanceMusicTrack() {
+  musicFailCount++;
+  if (musicFailCount > 3) {
+    musicFailCount = 0;
+    try {
+      clearTimeout(musicWatchdog);
+    } catch (e) {
+    }
+    updateMusicUI(false);
+    var btn = document.getElementById("musicBtn");
+    if (btn) btn.textContent = "\u{1F3B5} Music";
+    var info = document.getElementById("musicInfo");
+    if (info) info.textContent = "Music unavailable right now \u2014 try again later";
+    return;
+  }
+  var ids = Object.keys(MUSIC_TRACKS);
+  var next = ids[(ids.indexOf(currentTrackId) + 1) % ids.length];
+  changeMusicTrack(next);
+  if (ytPlayer && ytReady) {
+    try {
+      ytPlayer.playVideo();
+    } catch (e) {
+    }
+    armMusicWatchdog();
+  }
 }
 window.__mochiMusic = { toggle: toggleMusic, changeTrack: changeMusicTrack, isPlaying: function() {
   return musicPlaying;
